@@ -943,28 +943,22 @@
       width: calc(100vw - var(--sbw));
       margin-inline: calc((100vw - var(--sbw)) / -2 + 50%);
     }
-    /* без JS копии не создаются, поэтому ряд просто листается вручную */
-    .marquee-row { overflow-x: auto; scrollbar-width: none; }
+    /* Ряд — обычная область прокрутки: работают свайп на телефоне,
+       трекпад и перетаскивание мышью. Автодвижение добавляет скрипт. */
+    .marquee-row {
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      overscroll-behavior-x: contain;
+    }
     .marquee-row::-webkit-scrollbar { display: none; }
-    .js .marquee-row { overflow: hidden; }
+    .js .marquee-row { cursor: grab; }
+    .js .marquee-row.dragging { cursor: grabbing; }
+    .js .marquee-row.dragging img { pointer-events: none; }
     .marquee-track {
       display: flex;
       width: max-content;
     }
-    /* --shift = ширина одного набора в процентах от всей дорожки; ставит скрипт */
-    .js .marquee-track { --shift: 50%; will-change: transform; }
-    .js .marquee-left { animation: marquee-left 58s linear infinite; }
-    .js .marquee-right { animation: marquee-right 66s linear infinite; }
-    @keyframes marquee-left {
-      from { transform: translate3d(0, 0, 0); }
-      to   { transform: translate3d(calc(-1 * var(--shift)), 0, 0); }
-    }
-    @keyframes marquee-right {
-      from { transform: translate3d(calc(-1 * var(--shift)), 0, 0); }
-      to   { transform: translate3d(0, 0, 0); }
-    }
-    /* при наведении лента замирает — можно рассмотреть кадр */
-    .marquee:hover .marquee-track { animation-play-state: paused; }
 
     .gallery-item {
       flex: 0 0 auto;
@@ -988,10 +982,6 @@
       max-width: none;
       display: block;
       transition: transform 0.7s var(--ease);
-    }
-    /* если человек отключил анимации — ленты замирают и листаются вручную */
-    @media (prefers-reduced-motion: reduce) {
-      .js .marquee-row { overflow-x: auto; }
     }
     .gallery-item::after {
       content: "";
@@ -2095,18 +2085,25 @@
       setScrollbarWidth();
       window.addEventListener("resize", setScrollbarWidth);
 
-      /* Ленты концертов: размножаем набор фотографий, чтобы петля была
-         бесшовной и на широком экране не появлялось пустот */
-      document.querySelectorAll(".marquee-track").forEach(function (track) {
+      /* Ленты концертов: набор фотографий размножается, лента едет сама
+         и слушается человека — свайп, трекпад, перетаскивание мышью */
+      var dragSuppressedClick = false;
+      var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      document.querySelectorAll(".marquee-row").forEach(function (row) {
+        var track = row.querySelector(".marquee-track");
+        if (!track) return;
+
         var originals = Array.prototype.slice.call(track.children);
         if (!originals.length) return;
 
         var setWidth = track.scrollWidth;
         if (!setWidth) return;
 
-        /* после сдвига на один набор оставшиеся копии должны закрывать экран */
+        /* копий должно хватать, чтобы прокрутка всегда имела запас
+           в оба конца: два набора плюс ширина экрана */
         var safeWidth = Math.max(window.innerWidth, 1920);
-        var copies = Math.max(2, Math.ceil(safeWidth / setWidth) + 1);
+        var copies = Math.max(3, Math.ceil(safeWidth / setWidth) + 2);
 
         for (var i = 1; i < copies; i++) {
           originals.forEach(function (node) {
@@ -2118,7 +2115,96 @@
             track.appendChild(clone);
           });
         }
-        track.style.setProperty("--shift", (100 / copies).toFixed(4) + "%");
+
+        var dir = track.classList.contains("marquee-right") ? -1 : 1;
+        var speed = 26; /* пикселей в секунду */
+        var pos = setWidth; /* стартуем не с края, чтобы был запас в обе стороны */
+        row.scrollLeft = pos;
+
+        var hoverPaused = false;
+        var touchPaused = false;
+        var resumeTimer = null;
+
+        /* бесконечность: как только уехали за границы среднего набора,
+           перескакиваем ровно на его ширину — картинка та же */
+        var wrap = function (value) {
+          if (value >= setWidth * 2) return value - setWidth;
+          if (value <= 0) return value + setWidth;
+          return value;
+        };
+
+        var pauseByUser = function () {
+          touchPaused = true;
+          if (resumeTimer) window.clearTimeout(resumeTimer);
+          resumeTimer = window.setTimeout(function () { touchPaused = false; }, 1600);
+        };
+
+        row.addEventListener("mouseenter", function () { hoverPaused = true; });
+        row.addEventListener("mouseleave", function () { hoverPaused = false; });
+        row.addEventListener("wheel", pauseByUser, { passive: true });
+        row.addEventListener("touchstart", pauseByUser, { passive: true });
+        row.addEventListener("touchmove", pauseByUser, { passive: true });
+
+        /* перетаскивание мышью: на десктопе горизонтальную ленту
+           иначе не полистать без трекпада */
+        var dragging = false;
+        var startX = 0;
+        var startScroll = 0;
+        var moved = 0;
+
+        row.addEventListener("pointerdown", function (e) {
+          if (e.pointerType === "touch") return; /* тач листает сам */
+          dragging = true;
+          moved = 0;
+          startX = e.clientX;
+          startScroll = row.scrollLeft;
+          row.classList.add("dragging");
+          row.setPointerCapture(e.pointerId);
+          pauseByUser();
+        });
+
+        row.addEventListener("pointermove", function (e) {
+          if (!dragging) return;
+          var delta = e.clientX - startX;
+          moved = Math.max(moved, Math.abs(delta));
+          row.scrollLeft = startScroll - delta;
+          pauseByUser();
+        });
+
+        var endDrag = function (e) {
+          if (!dragging) return;
+          dragging = false;
+          row.classList.remove("dragging");
+          if (e.pointerId !== undefined && row.hasPointerCapture(e.pointerId)) {
+            row.releasePointerCapture(e.pointerId);
+          }
+          /* если это было перетаскивание, а не клик — не открываем фото */
+          if (moved > 6) {
+            dragSuppressedClick = true;
+            window.setTimeout(function () { dragSuppressedClick = false; }, 0);
+          }
+        };
+        row.addEventListener("pointerup", endDrag);
+        row.addEventListener("pointercancel", endDrag);
+
+        var last = null;
+        var frame = function (ts) {
+          if (last === null) last = ts;
+          var dt = Math.min((ts - last) / 1000, 0.05);
+          last = ts;
+
+          if (hoverPaused || touchPaused || dragging || prefersReducedMotion) {
+            /* пока листает человек — просто следим за петлёй */
+            var manual = wrap(row.scrollLeft);
+            if (manual !== row.scrollLeft) row.scrollLeft = manual;
+            pos = row.scrollLeft;
+          } else {
+            pos = wrap(pos + dir * speed * dt);
+            row.scrollLeft = pos;
+          }
+          window.requestAnimationFrame(frame);
+        };
+        window.requestAnimationFrame(frame);
       });
 
       /* Фотографии концертов: открытие на весь экран */
@@ -2135,6 +2221,7 @@
 
         document.querySelectorAll(".gallery-item").forEach(function (item) {
           item.addEventListener("click", function () {
+            if (dragSuppressedClick) return; /* это было перетаскивание ленты */
             var img = item.querySelector("img");
             lastFocused = item;
             lightboxImg.src = img.src;
