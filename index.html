@@ -598,25 +598,22 @@
     .fit-item h3 { margin: 0 0 10px; }
     .fit-item h3 span { display: block; }
 
-    /* пятно света под курсором: карточка рядом с мышью подсвечивается */
+    /* ЛУЧ ПРОЖЕКТОРА: свет падает на карточку сверху, как на сцене.
+       Пятно перемещается по карточкам по мере прокрутки. */
     .fit-item::before {
       content: "";
       position: absolute;
       inset: 0;
       border-radius: inherit;
-      background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%),
-                  rgba(168, 85, 247, 0.16), rgba(168, 85, 247, 0.05) 42%, transparent 70%);
+      background: radial-gradient(200px 150px at var(--mx, 50%) var(--my, -16%),
+                  rgba(168, 85, 247, 0.24), rgba(196, 132, 252, 0.08) 45%, transparent 72%);
       opacity: 0;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.6s ease;
       pointer-events: none;
     }
-    #about .grid.lit .fit-item::before { opacity: 1; }
-    .fit-item:hover::before { opacity: 1; }
-
-    /* объём: сетка получает глубину, карточка наклоняется вслед за курсором */
-    #about .grid { perspective: 1100px; }
+    .fit-item.spot::before { opacity: 1; }
     .fit-item {
-      transition: transform 0.5s var(--ease), box-shadow 0.45s ease, opacity 0.4s ease;
+      transition: opacity 0.55s ease, transform 0.55s var(--ease), box-shadow 0.55s ease;
     }
 
     /* появление: черта → заголовок из-под маски → описание.
@@ -639,22 +636,25 @@
       transform: none;
       transition: opacity 0.7s ease 0.3s, transform 0.7s var(--ease) 0.3s;
     }
-    /* карточки влетают с лёгким разворотом в объёме, каскадом */
+    /* карточки поднимаются из темноты, каскадом */
     .js #about .reveal {
       opacity: 0;
       filter: none;
-      transform: perspective(1000px) rotateX(10deg) translateY(30px);
+      transform: translateY(26px);
     }
     .js #about .reveal.visible {
       opacity: 1;
       transform: none;
-      transition: opacity 0.8s var(--ease), transform 0.95s var(--ease);
+      transition: opacity 0.8s var(--ease), transform 0.9s var(--ease);
     }
-    /* Когда курсор в сетке, все карточки кроме наведённой уходят на второй план.
-       Приоритет выше правила появления выше — иначе оно перебивало затемнение. */
-    .js #about .grid.lit .fit-item:not(:hover) {
-      opacity: 0.45;
-      transition: opacity 0.4s ease;
+    /* Вне луча карточка приглушена, под лучом — выходит вперёд и светится.
+       Приоритет выше правила появления: иначе оно перебивало приглушение. */
+    .js #about .grid.beam .fit-item.visible:not(.spot) { opacity: 0.42; }
+    .js #about .grid.beam .fit-item.spot {
+      opacity: 1;
+      transform: translateY(-5px);
+      box-shadow: 0 26px 56px rgba(124, 58, 237, 0.24);
+      border-color: rgba(168, 85, 247, 0.28);
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -2148,7 +2148,7 @@
 
       /* Ленты концертов: набор фотографий размножается, лента едет сама
          и слушается человека — свайп, трекпад, перетаскивание мышью */
-      var dragSuppressedClick = false;
+      var suppressClickUntil = 0; /* до этого времени клики по ленте не открывают фото */
       var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
       document.querySelectorAll(".marquee-row").forEach(function (row) {
@@ -2206,47 +2206,54 @@
         row.addEventListener("touchstart", pauseByUser, { passive: true });
         row.addEventListener("touchmove", pauseByUser, { passive: true });
 
-        /* перетаскивание мышью: на десктопе горизонтальную ленту
-           иначе не полистать без трекпада */
-        var dragging = false;
+        /* Перетаскивание мышью: на десктопе горизонтальную ленту
+           иначе не полистать без трекпада.
+           ВАЖНО: без setPointerCapture. Захват указателя перенаправляет
+           события на сам ряд, и клик по фотографии до неё не доходит —
+           именно из-за него не открывался просмотр. Слушаем окно. */
+        var dragging = false;   /* пошло настоящее перетаскивание */
+        var pressed = false;    /* кнопка нажата, но это ещё может быть клик */
         var startX = 0;
         var startScroll = 0;
         var moved = 0;
 
         row.addEventListener("pointerdown", function (e) {
           if (e.pointerType === "touch") return; /* тач листает сам */
-          dragging = true;
+          pressed = true;
+          dragging = false;
           moved = 0;
           startX = e.clientX;
           startScroll = row.scrollLeft;
-          row.classList.add("dragging");
-          row.setPointerCapture(e.pointerId);
           pauseByUser();
         });
 
-        row.addEventListener("pointermove", function (e) {
-          if (!dragging) return;
+        window.addEventListener("pointermove", function (e) {
+          if (!pressed) return;
           var delta = e.clientX - startX;
           moved = Math.max(moved, Math.abs(delta));
-          row.scrollLeft = startScroll - delta;
-          pauseByUser();
+          /* пока палец сдвинулся меньше 4px — считаем это кликом, не тянем */
+          if (!dragging && moved > 4) {
+            dragging = true;
+            row.classList.add("dragging");
+          }
+          if (dragging) {
+            row.scrollLeft = startScroll - delta;
+            pauseByUser();
+          }
         });
 
-        var endDrag = function (e) {
-          if (!dragging) return;
+        var endDrag = function () {
+          if (!pressed) return;
+          pressed = false;
+          if (dragging) {
+            row.classList.remove("dragging");
+            /* это было перетаскивание — гасим клик, который сейчас прилетит */
+            suppressClickUntil = Date.now() + 250;
+          }
           dragging = false;
-          row.classList.remove("dragging");
-          if (e.pointerId !== undefined && row.hasPointerCapture(e.pointerId)) {
-            row.releasePointerCapture(e.pointerId);
-          }
-          /* если это было перетаскивание, а не клик — не открываем фото */
-          if (moved > 6) {
-            dragSuppressedClick = true;
-            window.setTimeout(function () { dragSuppressedClick = false; }, 0);
-          }
         };
-        row.addEventListener("pointerup", endDrag);
-        row.addEventListener("pointercancel", endDrag);
+        window.addEventListener("pointerup", endDrag);
+        window.addEventListener("pointercancel", endDrag);
 
         var last = null;
         var frame = function (ts) {
@@ -2282,7 +2289,7 @@
 
         document.querySelectorAll(".gallery-item").forEach(function (item) {
           item.addEventListener("click", function () {
-            if (dragSuppressedClick) return; /* это было перетаскивание ленты */
+            if (Date.now() < suppressClickUntil) return; /* это было перетаскивание ленты */
             var img = item.querySelector("img");
             lastFocused = item;
             lightboxImg.src = img.src;
@@ -2363,54 +2370,63 @@
 
       /* «Подойдёт вам, если…»: мягкое пятно света следует за курсором.
          Координаты пересчитываем раз в кадр, чтобы не грузить страницу. */
+      /* «Подойдёт вам, если…»: луч прожектора идёт по карточкам.
+         Пока листаешь страницу, свет переходит с пункта на пункт по порядку;
+         если навести мышь — луч слушается курсора. */
       var fitGrid = document.querySelector("#about .grid");
-      if (fitGrid && window.matchMedia("(hover: hover)").matches) {
-        var fitCards = fitGrid.querySelectorAll(".fit-item");
-        var tiltAllowed = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        var queued = false;
-        var lastX = 0, lastY = 0;
+      if (fitGrid && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        var fitCards = Array.prototype.slice.call(fitGrid.querySelectorAll(".fit-item"));
+        var hovered = -1;
+        var current = -1;
+        var beamQueued = false;
 
-        var clearTilt = function () {
-          fitCards.forEach(function (card) { card.style.transform = ""; });
+        fitGrid.classList.add("beam");
+
+        var lightUp = function (index) {
+          if (index === current) return;
+          current = index;
+          fitCards.forEach(function (card, i) {
+            card.classList.toggle("spot", i === index);
+          });
         };
 
-        fitGrid.addEventListener("pointermove", function (e) {
-          if (e.pointerType === "touch") return;
-          lastX = e.clientX;
-          lastY = e.clientY;
-          if (queued) return;
-          queued = true;
-          window.requestAnimationFrame(function () {
-            queued = false;
-            fitCards.forEach(function (card) {
-              var r = card.getBoundingClientRect();
-              var x = lastX - r.left;
-              var y = lastY - r.top;
-              /* центр пятна света — там, где курсор */
-              card.style.setProperty("--mx", x + "px");
-              card.style.setProperty("--my", y + "px");
-              if (!tiltAllowed) return;
-              /* карточка под курсором разворачивается к нему гранью */
-              if (x >= 0 && y >= 0 && x <= r.width && y <= r.height) {
-                var px = x / r.width - 0.5;
-                var py = y / r.height - 0.5;
-                card.style.transform = "perspective(1000px) rotateX(" + (-py * 7).toFixed(2) +
-                  "deg) rotateY(" + (px * 9).toFixed(2) + "deg) translateY(-6px)";
-              } else if (card.style.transform) {
-                card.style.transform = "";
-              }
-            });
+        var updateBeam = function () {
+          beamQueued = false;
+          if (hovered >= 0) { lightUp(hovered); return; }
+          var r = fitGrid.getBoundingClientRect();
+          var vh = window.innerHeight;
+          /* 0 — блок только выходит снизу, 1 — уже ушёл вверх */
+          var progress = (vh - r.top) / (vh + r.height);
+          progress = Math.max(0, Math.min(0.999, progress));
+          lightUp(Math.floor(progress * fitCards.length));
+        };
+
+        var queueBeam = function () {
+          if (beamQueued) return;
+          beamQueued = true;
+          window.requestAnimationFrame(updateBeam);
+        };
+
+        window.addEventListener("scroll", queueBeam, { passive: true });
+        window.addEventListener("resize", queueBeam);
+
+        /* курсор перехватывает луч на себя */
+        fitCards.forEach(function (card, i) {
+          card.addEventListener("pointerenter", function (e) {
+            if (e.pointerType === "touch") return;
+            hovered = i;
+            /* свет идёт от курсора, а не сверху */
+            card.style.setProperty("--my", "50%");
+            updateBeam();
+          });
+          card.addEventListener("pointerleave", function () {
+            hovered = -1;
+            card.style.removeProperty("--my");
+            updateBeam();
           });
         });
 
-        fitGrid.addEventListener("pointerenter", function (e) {
-          if (e.pointerType === "touch") return;
-          fitGrid.classList.add("lit");
-        });
-        fitGrid.addEventListener("pointerleave", function () {
-          fitGrid.classList.remove("lit");
-          clearTilt();
-        });
+        updateBeam();
       }
 
       /* Полоса прогресса чтения + уплотнение шапки при прокрутке */
