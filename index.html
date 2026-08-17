@@ -574,94 +574,51 @@
       box-shadow: 0 10px 22px rgba(124, 58, 237, 0.18);
     }
 
-    /* ============ «ПОДОЙДЁТ ВАМ, ЕСЛИ…» ============ */
-    /* Секция без эмблем: смысл несут типографика и движение —
-       свет, идущий за курсором, и текст, выезжающий из-под маски. */
-    .fit-item {
-      display: block;
-      padding: 30px 26px 28px;
-      overflow: hidden; /* держит подсветку и маску внутри скруглений */
+    /* ============ «ПОДОЙДЁТ ВАМ, ЕСЛИ…» — БЕГУЩИЕ СТРОКИ ============ */
+    /* Две встречные строки во всю ширину экрана. Ход медленный, при наведении
+       строка замирает, курсором можно тянуть — читать не мешает. */
+    .phrases {
+      display: grid;
+      gap: clamp(14px, 2vw, 26px);
+      margin-top: clamp(22px, 2.6vw, 32px);
+      width: calc(100vw - var(--sbw));
+      margin-inline: calc((100vw - var(--sbw)) / -2 + 50%);
     }
-    .fit-item > div { position: relative; padding-top: 20px; }
-
-    /* тонкая черта над заголовком — прочерчивается слева направо */
-    .fit-item > div::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 44px;
-      height: 2px;
-      border-radius: 2px;
-      background: linear-gradient(90deg, var(--purple-deep), var(--pink));
+    .phrase-row { padding: 4px 0; }
+    .phrase {
+      flex: 0 0 auto;
+      width: clamp(260px, 30vw, 380px);
+      margin-right: clamp(24px, 3vw, 40px);
     }
-    .fit-item h3 { margin: 0 0 10px; }
-    .fit-item h3 span { display: block; }
-
-    /* ЛУЧ ПРОЖЕКТОРА: свет падает на карточку сверху, как на сцене.
-       Пятно перемещается по карточкам по мере прокрутки. */
-    .fit-item::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background: radial-gradient(200px 150px at var(--mx, 50%) var(--my, -16%),
-                  rgba(168, 85, 247, 0.24), rgba(196, 132, 252, 0.08) 45%, transparent 72%);
-      opacity: 0;
-      transition: opacity 0.6s ease;
-      pointer-events: none;
+    .phrase h3 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(19px, 2.1vw, 26px);
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+      /* две строки минимум — тогда описания у соседних фраз идут на одном уровне */
+      min-height: 2.4em;
     }
-    .fit-item.spot::before { opacity: 1; }
-    .fit-item {
-      transition: opacity 0.55s ease, transform 0.55s var(--ease), box-shadow 0.55s ease;
+    .phrase p {
+      color: var(--muted);
+      font-size: clamp(14.5px, 1.4vw, 16px);
+      line-height: 1.55;
     }
-
-    /* появление: черта → заголовок из-под маски → описание.
-       Прячем только при работающем JS, иначе текст останется невидимым. */
-    .js .fit-item > div::before { transform: scaleX(0); transform-origin: left; }
-    .js .fit-item h3 { overflow: hidden; }
-    .js .fit-item h3 span { transform: translateY(110%); }
-    .js .fit-item p { opacity: 0; transform: translateY(10px); }
-
-    .js .fit-item.visible > div::before {
-      transform: scaleX(1);
-      transition: transform 0.7s var(--ease);
+    /* разделитель между фразами */
+    .phrase-sep {
+      flex: 0 0 auto;
+      align-self: center;
+      margin-right: clamp(24px, 3vw, 40px);
+      font-size: clamp(16px, 1.8vw, 22px);
+      color: var(--purple);
+      opacity: 0.55;
     }
-    .js .fit-item.visible h3 span {
-      transform: none;
-      transition: transform 0.85s var(--ease) 0.12s;
-    }
-    .js .fit-item.visible p {
-      opacity: 1;
-      transform: none;
-      transition: opacity 0.7s ease 0.3s, transform 0.7s var(--ease) 0.3s;
-    }
-    /* карточки поднимаются из темноты, каскадом */
-    .js #about .reveal {
-      opacity: 0;
-      filter: none;
-      transform: translateY(26px);
-    }
-    .js #about .reveal.visible {
-      opacity: 1;
-      transform: none;
-      transition: opacity 0.8s var(--ease), transform 0.9s var(--ease);
-    }
-    /* Вне луча карточка приглушена, под лучом — выходит вперёд и светится.
-       Приоритет выше правила появления: иначе оно перебивало приглушение. */
-    .js #about .grid.beam .fit-item.visible:not(.spot) { opacity: 0.42; }
-    .js #about .grid.beam .fit-item.spot {
-      opacity: 1;
-      transform: translateY(-5px);
-      box-shadow: 0 26px 56px rgba(124, 58, 237, 0.24);
-      border-color: rgba(168, 85, 247, 0.28);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .js .fit-item > div::before { transform: scaleX(1); }
-      .js .fit-item h3 span { transform: none; }
-      .js .fit-item p { opacity: 1; transform: none; }
-    }
+    /* фраза под курсором выделяется, соседние приглушаются */
+    .phrase-track .phrase { transition: opacity 0.35s ease; }
+    .phrase-row:hover .phrase { opacity: 0.4; }
+    .phrase-row:hover .phrase:hover { opacity: 1; }
+    .phrase-row:hover .phrase:hover h3 { color: var(--purple-deep); }
 
     /* ============ ДИАГНОСТИКА (тёмная вставка-карточка) ============ */
     .diagnostics-card {
@@ -1525,43 +1482,48 @@
         <p class="eyebrow">О студии</p>
         <h2 class="section-title">Подойдёт вам, если…</h2>
         <p class="section-lead">«Звучно» — студия вокала в Санкт-Петербурге для взрослых и детей. Занимаемся онлайн или в уютной студии в 5 минутах от метро «Сенная площадь»</p>
-        <div class="grid grid-3">
-          <article class="card fit-item reveal">
-            <div>
-              <h3><span>Давно мечтаете научиться петь</span></h3>
-              <p>Откладывали «на потом» годами — а желание петь никуда не делось. Самое время начать.</p>
+        <!-- Пункты идут двумя встречными бегущими строками. Каждая фраза
+             показана вместе с описанием — ничего не прячется. Ход медленный,
+             при наведении лента замирает, можно и пролистать вручную. -->
+        <div class="phrases">
+          <div class="marquee-row phrase-row">
+            <div class="marquee-track phrase-track marquee-left" data-speed="15">
+              <div class="phrase">
+                <h3>Давно мечтаете научиться петь</h3>
+                <p>Откладывали «на потом» годами — а желание петь никуда не делось. Самое время начать.</p>
+              </div>
+              <span class="phrase-sep" aria-hidden="true">✦</span>
+              <div class="phrase">
+                <h3>Стесняетесь своего голоса</h3>
+                <p>Неловко петь даже наедине с собой. Здесь безопасная атмосфера без оценок и сравнений.</p>
+              </div>
+              <span class="phrase-sep" aria-hidden="true">✦</span>
+              <div class="phrase">
+                <h3>Не попадаете в ноты</h3>
+                <p>Кажется, что «медведь на ухо наступил». Чистая интонация — навык, и он тренируется.</p>
+              </div>
+              <span class="phrase-sep" aria-hidden="true">✦</span>
             </div>
-          </article>
-          <article class="card fit-item reveal">
-            <div>
-              <h3><span>Стесняетесь своего голоса</span></h3>
-              <p>Неловко петь даже наедине с собой. Здесь безопасная атмосфера без оценок и сравнений.</p>
+          </div>
+          <div class="marquee-row phrase-row">
+            <div class="marquee-track phrase-track marquee-right" data-speed="13">
+              <div class="phrase">
+                <h3>Хотите звучать увереннее и выступать</h3>
+                <p>Мечтаете о сцене, караоке без страха или уверенном голосе на публике.</p>
+              </div>
+              <span class="phrase-sep" aria-hidden="true">✦</span>
+              <div class="phrase">
+                <h3>Уже поёте и хотите петь техничнее</h3>
+                <p>Есть опыт, но чувствуете потолок: дыхание, диапазон, свобода звука — есть куда расти.</p>
+              </div>
+              <span class="phrase-sep" aria-hidden="true">✦</span>
+              <div class="phrase">
+                <h3>Поёте профессионально и ищете взгляд со стороны</h3>
+                <p>Вам нужен внимательный слух педагога, чтобы отшлифовать то, что уже работает.</p>
+              </div>
+              <span class="phrase-sep" aria-hidden="true">✦</span>
             </div>
-          </article>
-          <article class="card fit-item reveal">
-            <div>
-              <h3><span>Не попадаете в ноты</span></h3>
-              <p>Кажется, что «медведь на ухо наступил». Чистая интонация — навык, и он тренируется.</p>
-            </div>
-          </article>
-          <article class="card fit-item reveal">
-            <div>
-              <h3><span>Хотите звучать увереннее и выступать</span></h3>
-              <p>Мечтаете о сцене, караоке без страха или уверенном голосе на публике.</p>
-            </div>
-          </article>
-          <article class="card fit-item reveal">
-            <div>
-              <h3><span>Уже поёте и хотите петь техничнее</span></h3>
-              <p>Есть опыт, но чувствуете потолок: дыхание, диапазон, свобода звука — есть куда расти.</p>
-            </div>
-          </article>
-          <article class="card fit-item reveal">
-            <div>
-              <h3><span>Поёте профессионально и ищете взгляд со стороны</span></h3>
-              <p>Вам нужен внимательный слух педагога, чтобы отшлифовать то, что уже работает.</p>
-            </div>
-          </article>
+          </div>
         </div>
       </div>
     </section>
@@ -2178,7 +2140,8 @@
         }
 
         var dir = track.classList.contains("marquee-right") ? -1 : 1;
-        var speed = 26; /* пикселей в секунду */
+        /* скорость в пикселях за секунду; у текстовых строк она меньше — читать удобнее */
+        var speed = Number(track.dataset.speed) || 26;
         var pos = setWidth; /* стартуем не с края, чтобы был запас в обе стороны */
         row.scrollLeft = pos;
 
@@ -2370,65 +2333,6 @@
 
       /* «Подойдёт вам, если…»: мягкое пятно света следует за курсором.
          Координаты пересчитываем раз в кадр, чтобы не грузить страницу. */
-      /* «Подойдёт вам, если…»: луч прожектора идёт по карточкам.
-         Пока листаешь страницу, свет переходит с пункта на пункт по порядку;
-         если навести мышь — луч слушается курсора. */
-      var fitGrid = document.querySelector("#about .grid");
-      if (fitGrid && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        var fitCards = Array.prototype.slice.call(fitGrid.querySelectorAll(".fit-item"));
-        var hovered = -1;
-        var current = -1;
-        var beamQueued = false;
-
-        fitGrid.classList.add("beam");
-
-        var lightUp = function (index) {
-          if (index === current) return;
-          current = index;
-          fitCards.forEach(function (card, i) {
-            card.classList.toggle("spot", i === index);
-          });
-        };
-
-        var updateBeam = function () {
-          beamQueued = false;
-          if (hovered >= 0) { lightUp(hovered); return; }
-          var r = fitGrid.getBoundingClientRect();
-          var vh = window.innerHeight;
-          /* 0 — блок только выходит снизу, 1 — уже ушёл вверх */
-          var progress = (vh - r.top) / (vh + r.height);
-          progress = Math.max(0, Math.min(0.999, progress));
-          lightUp(Math.floor(progress * fitCards.length));
-        };
-
-        var queueBeam = function () {
-          if (beamQueued) return;
-          beamQueued = true;
-          window.requestAnimationFrame(updateBeam);
-        };
-
-        window.addEventListener("scroll", queueBeam, { passive: true });
-        window.addEventListener("resize", queueBeam);
-
-        /* курсор перехватывает луч на себя */
-        fitCards.forEach(function (card, i) {
-          card.addEventListener("pointerenter", function (e) {
-            if (e.pointerType === "touch") return;
-            hovered = i;
-            /* свет идёт от курсора, а не сверху */
-            card.style.setProperty("--my", "50%");
-            updateBeam();
-          });
-          card.addEventListener("pointerleave", function () {
-            hovered = -1;
-            card.style.removeProperty("--my");
-            updateBeam();
-          });
-        });
-
-        updateBeam();
-      }
-
       /* Полоса прогресса чтения + уплотнение шапки при прокрутке */
       var progress = document.querySelector(".scroll-progress");
       var header = document.querySelector(".site-header");
