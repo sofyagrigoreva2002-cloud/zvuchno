@@ -574,13 +574,73 @@
       box-shadow: 0 10px 22px rgba(124, 58, 237, 0.18);
     }
 
-    /* «Подойдёт вам, если…» */
+    /* ============ «ПОДОЙДЁТ ВАМ, ЕСЛИ…» ============ */
+    /* Секция без эмблем: смысл несут типографика и движение —
+       свет, идущий за курсором, и текст, выезжающий из-под маски. */
     .fit-item {
-      display: flex;
-      gap: 18px;
-      align-items: flex-start;
+      display: block;
+      padding: 30px 26px 28px;
+      overflow: hidden; /* держит подсветку и маску внутри скруглений */
     }
-    .fit-item h3 { margin-top: 4px; }
+    .fit-item > div { position: relative; padding-top: 20px; }
+
+    /* тонкая черта над заголовком — прочерчивается слева направо */
+    .fit-item > div::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 44px;
+      height: 2px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--purple-deep), var(--pink));
+    }
+    .fit-item h3 { margin: 0 0 10px; }
+    .fit-item h3 span { display: block; }
+
+    /* пятно света под курсором: карточка рядом с мышью подсвечивается */
+    .fit-item::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%),
+                  rgba(168, 85, 247, 0.16), rgba(168, 85, 247, 0.05) 42%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+    #about .grid.lit .fit-item::before { opacity: 1; }
+    .fit-item:hover::before { opacity: 1; }
+
+    /* появление: черта → заголовок из-под маски → описание.
+       Прячем только при работающем JS, иначе текст останется невидимым. */
+    .js .fit-item > div::before { transform: scaleX(0); transform-origin: left; }
+    .js .fit-item h3 { overflow: hidden; }
+    .js .fit-item h3 span { transform: translateY(110%); }
+    .js .fit-item p { opacity: 0; transform: translateY(10px); }
+
+    .js .fit-item.visible > div::before {
+      transform: scaleX(1);
+      transition: transform 0.7s var(--ease);
+    }
+    .js .fit-item.visible h3 span {
+      transform: none;
+      transition: transform 0.85s var(--ease) 0.12s;
+    }
+    .js .fit-item.visible p {
+      opacity: 1;
+      transform: none;
+      transition: opacity 0.7s ease 0.3s, transform 0.7s var(--ease) 0.3s;
+    }
+    /* карточка проявляется мягко, всё остальное делает внутренняя анимация */
+    .js #about .reveal { transform: none; filter: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .js .fit-item > div::before { transform: scaleX(1); }
+      .js .fit-item h3 span { transform: none; }
+      .js .fit-item p { opacity: 1; transform: none; }
+    }
 
     /* ============ ДИАГНОСТИКА (тёмная вставка-карточка) ============ */
     .diagnostics-card {
@@ -1446,62 +1506,38 @@
         <p class="section-lead">«Звучно» — студия вокала в Санкт-Петербурге для взрослых и детей. Занимаемся онлайн или в уютной студии в 5 минутах от метро «Сенная площадь»</p>
         <div class="grid grid-3">
           <article class="card fit-item reveal">
-            <span class="icon-chip" aria-hidden="true">
-              <!-- нота с искрой: мечта петь -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="17.5" r="3.2"/><path d="M10.2 17.5V5l7-1.6v10"/><circle cx="16.2" cy="14" r="3.2"/><path d="M20.4 3.2l.6 1.7 1.7.6-1.7.6-.6 1.7-.6-1.7-1.7-.6 1.7-.6.6-1.7z"/></svg>
-            </span>
             <div>
-              <h3>Давно мечтаете научиться петь</h3>
+              <h3><span>Давно мечтаете научиться петь</span></h3>
               <p>Откладывали «на потом» годами — а желание петь никуда не делось. Самое время начать.</p>
             </div>
           </article>
           <article class="card fit-item reveal">
-            <span class="icon-chip" aria-hidden="true">
-              <!-- микрофон: страшно взять его в руки -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/><path d="M8.5 21h7"/></svg>
-            </span>
             <div>
-              <h3>Стесняетесь своего голоса</h3>
+              <h3><span>Стесняетесь своего голоса</span></h3>
               <p>Неловко петь даже наедине с собой. Здесь безопасная атмосфера без оценок и сравнений.</p>
             </div>
           </article>
           <article class="card fit-item reveal">
-            <span class="icon-chip" aria-hidden="true">
-              <!-- камертон: чистая интонация -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 3v7.5a3.5 3.5 0 0 0 7 0V3"/><path d="M12 14v7"/><path d="M9 21h6"/><path d="M4 6.5c-.9 1.6-.9 3.4 0 5"/><path d="M20 6.5c.9 1.6.9 3.4 0 5"/></svg>
-            </span>
             <div>
-              <h3>Не попадаете в ноты</h3>
+              <h3><span>Не попадаете в ноты</span></h3>
               <p>Кажется, что «медведь на ухо наступил». Чистая интонация — навык, и он тренируется.</p>
             </div>
           </article>
           <article class="card fit-item reveal">
-            <span class="icon-chip" aria-hidden="true">
-              <!-- концертная колонка: звучать на публику -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2.5" width="14" height="19" rx="3"/><circle cx="12" cy="15" r="3.6"/><circle cx="12" cy="7" r="1.6"/></svg>
-            </span>
             <div>
-              <h3>Хотите звучать увереннее и выступать</h3>
+              <h3><span>Хотите звучать увереннее и выступать</span></h3>
               <p>Мечтаете о сцене, караоке без страха или уверенном голосе на публике.</p>
             </div>
           </article>
           <article class="card fit-item reveal">
-            <span class="icon-chip" aria-hidden="true">
-              <!-- микшерные фейдеры: тонкая настройка звука -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v18"/><path d="M12 3v18"/><path d="M18 3v18"/><circle cx="6" cy="8" r="2.1"/><circle cx="12" cy="15" r="2.1"/><circle cx="18" cy="10.5" r="2.1"/></svg>
-            </span>
             <div>
-              <h3>Уже поёте и хотите петь техничнее</h3>
+              <h3><span>Уже поёте и хотите петь техничнее</span></h3>
               <p>Есть опыт, но чувствуете потолок: дыхание, диапазон, свобода звука — есть куда расти.</p>
             </div>
           </article>
           <article class="card fit-item reveal">
-            <span class="icon-chip" aria-hidden="true">
-              <!-- студийные наушники: профессиональный слух -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15.5v-2.5a8 8 0 0 1 16 0v2.5"/><rect x="2.5" y="14" width="4.5" height="7" rx="2.2"/><rect x="17" y="14" width="4.5" height="7" rx="2.2"/></svg>
-            </span>
             <div>
-              <h3>Поёте профессионально и ищете взгляд со стороны</h3>
+              <h3><span>Поёте профессионально и ищете взгляд со стороны</span></h3>
               <p>Вам нужен внимательный слух педагога, чтобы отшлифовать то, что уже работает.</p>
             </div>
           </article>
@@ -1539,7 +1575,8 @@
           </article>
           <article class="card reveal">
             <span class="icon-chip" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4"/><path d="M12 7l-5.5 4.5V21h11v-9.5L12 7z"/><path d="M9.5 21v-4a2.5 2.5 0 0 1 5 0v4"/></svg>
+              <!-- концертная сцена: ферма, колонки, микрофон на стойке, подиум -->
+              <svg viewBox="2 2.6 20 19.4" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3.2h18v2.4H3z"/><path d="M3 5.6l2.9-2.4M9 5.6l2.9-2.4M15 5.6l2.9-2.4"/><rect x="2.8" y="10" width="4.6" height="8.6" rx=".8"/><circle cx="5.1" cy="14.6" r="1.5"/><rect x="16.6" y="10" width="4.6" height="8.6" rx=".8"/><circle cx="18.9" cy="14.6" r="1.5"/><circle cx="13" cy="9.6" r="1.2"/><path d="M12.4 10.7l-1.2 7.9"/><path d="M2.4 18.6h19.2v2.8H2.4z"/></svg>
             </span>
             <h3>Сцена, караоке или студийная запись</h3>
             <p>Цель выбираете вы — концерт, вечер с друзьями или запись любимого трека.</p>
@@ -2300,6 +2337,30 @@
 
           sync();
         }
+      }
+
+      /* «Подойдёт вам, если…»: мягкое пятно света следует за курсором.
+         Координаты пересчитываем раз в кадр, чтобы не грузить страницу. */
+      var fitGrid = document.querySelector("#about .grid");
+      if (fitGrid && window.matchMedia("(hover: hover)").matches) {
+        var fitCards = fitGrid.querySelectorAll(".fit-item");
+        var pointer = null;
+
+        fitGrid.addEventListener("pointermove", function (e) {
+          if (e.pointerType === "touch") return;
+          if (pointer) return;
+          pointer = window.requestAnimationFrame(function () {
+            pointer = null;
+            fitCards.forEach(function (card) {
+              var r = card.getBoundingClientRect();
+              card.style.setProperty("--mx", (e.clientX - r.left) + "px");
+              card.style.setProperty("--my", (e.clientY - r.top) + "px");
+            });
+          });
+        });
+
+        fitGrid.addEventListener("pointerenter", function () { fitGrid.classList.add("lit"); });
+        fitGrid.addEventListener("pointerleave", function () { fitGrid.classList.remove("lit"); });
       }
 
       /* Полоса прогресса чтения + уплотнение шапки при прокрутке */
