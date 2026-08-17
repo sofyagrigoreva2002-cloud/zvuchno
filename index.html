@@ -613,6 +613,12 @@
     #about .grid.lit .fit-item::before { opacity: 1; }
     .fit-item:hover::before { opacity: 1; }
 
+    /* объём: сетка получает глубину, карточка наклоняется вслед за курсором */
+    #about .grid { perspective: 1100px; }
+    .fit-item {
+      transition: transform 0.5s var(--ease), box-shadow 0.45s ease, opacity 0.4s ease;
+    }
+
     /* появление: черта → заголовок из-под маски → описание.
        Прячем только при работающем JS, иначе текст останется невидимым. */
     .js .fit-item > div::before { transform: scaleX(0); transform-origin: left; }
@@ -633,8 +639,23 @@
       transform: none;
       transition: opacity 0.7s ease 0.3s, transform 0.7s var(--ease) 0.3s;
     }
-    /* карточка проявляется мягко, всё остальное делает внутренняя анимация */
-    .js #about .reveal { transform: none; filter: none; }
+    /* карточки влетают с лёгким разворотом в объёме, каскадом */
+    .js #about .reveal {
+      opacity: 0;
+      filter: none;
+      transform: perspective(1000px) rotateX(10deg) translateY(30px);
+    }
+    .js #about .reveal.visible {
+      opacity: 1;
+      transform: none;
+      transition: opacity 0.8s var(--ease), transform 0.95s var(--ease);
+    }
+    /* Когда курсор в сетке, все карточки кроме наведённой уходят на второй план.
+       Приоритет выше правила появления выше — иначе оно перебивало затемнение. */
+    .js #about .grid.lit .fit-item:not(:hover) {
+      opacity: 0.45;
+      transition: opacity 0.4s ease;
+    }
 
     @media (prefers-reduced-motion: reduce) {
       .js .fit-item > div::before { transform: scaleX(1); }
@@ -1575,8 +1596,8 @@
           </article>
           <article class="card reveal">
             <span class="icon-chip" aria-hidden="true">
-              <!-- концертная сцена: ферма, колонки, микрофон на стойке, подиум -->
-              <svg viewBox="2 2.6 20 19.4" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3.2h18v2.4H3z"/><path d="M3 5.6l2.9-2.4M9 5.6l2.9-2.4M15 5.6l2.9-2.4"/><rect x="2.8" y="10" width="4.6" height="8.6" rx=".8"/><circle cx="5.1" cy="14.6" r="1.5"/><rect x="16.6" y="10" width="4.6" height="8.6" rx=".8"/><circle cx="18.9" cy="14.6" r="1.5"/><circle cx="13" cy="9.6" r="1.2"/><path d="M12.4 10.7l-1.2 7.9"/><path d="M2.4 18.6h19.2v2.8H2.4z"/></svg>
+              <!-- театральный занавес: ламбрекен, шторы с подхватами, сцена -->
+              <svg viewBox="2 2.4 20 19.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.4 3.2h19.2"/><path d="M2.4 3.2c.2 2.4 1.8 4 4.2 4.4"/><path d="M21.6 3.2c-.2 2.4-1.8 4-4.2 4.4"/><path d="M8.6 3.2c0 2.1 1.5 3.4 3.4 3.4s3.4-1.3 3.4-3.4"/><path d="M4.8 3.2v6.8"/><path d="M8.2 5.6c0 2.6-.9 4-2.6 4.6"/><path d="M3.4 10.8h3.4"/><path d="M4.8 11.8v8.8"/><path d="M7.4 11.8c.2 4.4.7 7.4 1.4 8.8"/><path d="M19.2 3.2v6.8"/><path d="M15.8 5.6c0 2.6.9 4 2.6 4.6"/><path d="M17.2 10.8h3.4"/><path d="M19.2 11.8v8.8"/><path d="M16.6 11.8c-.2 4.4-.7 7.4-1.4 8.8"/><path d="M2.4 20.6h19.2"/></svg>
             </span>
             <h3>Сцена, караоке или студийная запись</h3>
             <p>Цель выбираете вы — концерт, вечер с друзьями или запись любимого трека.</p>
@@ -1617,8 +1638,8 @@
         <div class="grid grid-4">
           <article class="card expect-tile reveal">
             <span class="icon-chip" aria-hidden="true">
-              <!-- план с галочкой -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7.5L14.5 3z"/><path d="M14.5 3v4.5H19"/><path d="M8.5 14.5l2 2 4.5-4.5"/></svg>
+              <!-- блокнот на пружине: отмеченные шаги и сроки -->
+              <svg viewBox="1.6 2.4 20.8 19.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5.2" y="3" width="14.8" height="18" rx="2.2"/><path d="M8.2 7.8l1.4 1.4 2.6-2.6"/><path d="M8.2 12.6l1.4 1.4 2.6-2.6"/><path d="M14.6 7.4h3.2"/><path d="M14.6 12.2h3.2"/><circle cx="3.8" cy="6.6" r="1.5"/><circle cx="3.8" cy="12" r="1.5"/><circle cx="3.8" cy="17.4" r="1.5"/><circle cx="17.2" cy="17" r="4.2"/><path d="M17.2 15v2h1.8"/></svg>
             </span>
             <h3>Индивидуальный план развития</h3>
           </article>
@@ -1645,8 +1666,8 @@
           </article>
           <article class="card expect-tile reveal">
             <span class="icon-chip" aria-hidden="true">
-              <!-- театральная маска: эмоции -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4.5h15v6.5a7.5 7.5 0 0 1-15 0V4.5z"/><circle cx="9.5" cy="10" r="1" fill="currentColor"/><circle cx="14.5" cy="10" r="1" fill="currentColor"/><path d="M9.5 14c1.6 1.3 3.4 1.3 5 0"/></svg>
+              <!-- театральные маски: комедия и трагедия -->
+              <svg viewBox="1.8 3 20.4 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.6 5.4c3.2-1 6.2-1 9.4 0 .3 4.8-1.4 8.8-4.7 10.8C4 14.2 2.3 10.2 2.6 5.4z"/><path d="M4.9 8.6c.7-.6 1.5-.6 2.2 0"/><path d="M8.1 8.6c.7-.6 1.5-.6 2.2 0"/><path d="M5.1 11.8c1.3 1.4 2.9 1.4 4.2 0"/><path d="M12 5.4c3.2-1 6.2-1 9.4 0 .3 4.8-1.4 8.8-4.7 10.8-1.5-.9-2.7-2.2-3.5-3.8"/><path d="M15.4 8.6c.7-.6 1.5-.6 2.2 0"/><path d="M15.2 13c1.3-1.4 2.9-1.4 4.2 0"/></svg>
             </span>
             <h3>Практика проявления эмоций через музыку</h3>
           </article>
@@ -1666,8 +1687,8 @@
           </article>
           <article class="card expect-tile reveal">
             <span class="icon-chip" aria-hidden="true">
-              <!-- медаль: профессионализм -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.5"/><path d="M12 6.4l.85 1.7 1.9.3-1.35 1.35.3 1.9-1.7-.85-1.7.85.3-1.9L9.25 8.4l1.9-.3.85-1.7z"/><path d="M8.5 13.6L7 21l5-2.5L17 21l-1.5-7.4"/></svg>
+              <!-- педагог у доски -->
+              <svg viewBox="1 2.4 22 19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="8.4" y="3" width="13" height="9.8" rx="1.4"/><path d="M11.2 6.4h7.4"/><path d="M11.2 9.4h4.6"/><circle cx="5" cy="11.8" r="2.4"/><path d="M1.4 20.8c0-2.9 1.6-4.9 3.6-4.9s3.6 2 3.6 4.9"/><path d="M6.6 14.6l2.6-2.2"/></svg>
             </span>
             <h3>Педагог — профессионал своего дела</h3>
           </article>
@@ -1732,7 +1753,8 @@
           </article>
           <article class="card format-card reveal">
             <span class="icon-chip" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="3"/><circle cx="5" cy="10" r="2.5"/><circle cx="19" cy="10" r="2.5"/><path d="M7.5 20c.8-2.8 2.5-4.3 4.5-4.3s3.7 1.5 4.5 4.3"/><path d="M1.5 17.5c.6-2 1.9-3.2 3.5-3.4"/><path d="M22.5 17.5c-.6-2-1.9-3.2-3.5-3.4"/></svg>
+              <!-- мини-группа: трое поют вместе -->
+              <svg viewBox="1 3 22 18.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.8" r="3.2"/><path d="M6.2 20.6c0-3.4 2.6-5.6 5.8-5.6s5.8 2.2 5.8 5.6"/><circle cx="4.7" cy="9.8" r="2.4"/><path d="M1.2 17.8c0-2.4 1.6-4.1 3.5-4.1"/><circle cx="19.3" cy="9.8" r="2.4"/><path d="M22.8 17.8c0-2.4-1.6-4.1-3.5-4.1"/></svg>
             </span>
             <h3>Групповые</h3>
             <span class="format-tag">онлайн или в студии</span>
@@ -2344,23 +2366,51 @@
       var fitGrid = document.querySelector("#about .grid");
       if (fitGrid && window.matchMedia("(hover: hover)").matches) {
         var fitCards = fitGrid.querySelectorAll(".fit-item");
-        var pointer = null;
+        var tiltAllowed = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var queued = false;
+        var lastX = 0, lastY = 0;
+
+        var clearTilt = function () {
+          fitCards.forEach(function (card) { card.style.transform = ""; });
+        };
 
         fitGrid.addEventListener("pointermove", function (e) {
           if (e.pointerType === "touch") return;
-          if (pointer) return;
-          pointer = window.requestAnimationFrame(function () {
-            pointer = null;
+          lastX = e.clientX;
+          lastY = e.clientY;
+          if (queued) return;
+          queued = true;
+          window.requestAnimationFrame(function () {
+            queued = false;
             fitCards.forEach(function (card) {
               var r = card.getBoundingClientRect();
-              card.style.setProperty("--mx", (e.clientX - r.left) + "px");
-              card.style.setProperty("--my", (e.clientY - r.top) + "px");
+              var x = lastX - r.left;
+              var y = lastY - r.top;
+              /* центр пятна света — там, где курсор */
+              card.style.setProperty("--mx", x + "px");
+              card.style.setProperty("--my", y + "px");
+              if (!tiltAllowed) return;
+              /* карточка под курсором разворачивается к нему гранью */
+              if (x >= 0 && y >= 0 && x <= r.width && y <= r.height) {
+                var px = x / r.width - 0.5;
+                var py = y / r.height - 0.5;
+                card.style.transform = "perspective(1000px) rotateX(" + (-py * 7).toFixed(2) +
+                  "deg) rotateY(" + (px * 9).toFixed(2) + "deg) translateY(-6px)";
+              } else if (card.style.transform) {
+                card.style.transform = "";
+              }
             });
           });
         });
 
-        fitGrid.addEventListener("pointerenter", function () { fitGrid.classList.add("lit"); });
-        fitGrid.addEventListener("pointerleave", function () { fitGrid.classList.remove("lit"); });
+        fitGrid.addEventListener("pointerenter", function (e) {
+          if (e.pointerType === "touch") return;
+          fitGrid.classList.add("lit");
+        });
+        fitGrid.addEventListener("pointerleave", function () {
+          fitGrid.classList.remove("lit");
+          clearTilt();
+        });
       }
 
       /* Полоса прогресса чтения + уплотнение шапки при прокрутке */
