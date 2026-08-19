@@ -1163,6 +1163,164 @@
       color: var(--purple-deep);
     }
 
+    /* ============ ОТЗЫВЫ (объёмная круговая карусель) ============ */
+    /* Карточки стоят по кругу через rotateY+translateZ — классический приём
+       3D-карусели: поворачиваем кольцо, а не каждую карточку отдельно.
+       backface-visibility прячет те, что повернулись больше чем на 90° —
+       это само отсекает дальнюю половину круга без лишнего JS.
+       Без JS (класс .js не появился) 3D-позиционирование и обрезка текста
+       отключены — отзывы показываются простым читаемым списком целиком. */
+    .reviews-wrap {
+      margin-top: clamp(30px, 3.6vw, 46px);
+      overflow-x: hidden;
+    }
+    .reviews-stage { position: relative; }
+    .js .reviews-stage {
+      height: clamp(400px, 46vw, 470px);
+      perspective: clamp(900px, 90vw, 1500px);
+      touch-action: pan-y;
+    }
+    .reviews-ring {
+      display: grid;
+      gap: 18px;
+      max-width: 620px;
+      margin: 0 auto;
+    }
+    .js .reviews-ring {
+      position: absolute;
+      inset: 0;
+      display: block;
+      transform-style: preserve-3d;
+      transition: transform 0.85s var(--ease);
+      cursor: grab;
+    }
+    .reviews-ring.dragging { transition: none; cursor: grabbing; }
+    .review-card {
+      position: relative;
+      background: linear-gradient(180deg, #ffffff 0%, #fdfbff 100%);
+      border: 1px solid rgba(229, 220, 246, 0.85);
+      border-radius: var(--radius-card, 20px);
+      box-shadow: var(--shadow-lift);
+      padding: 24px 24px 20px;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+    .js .review-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: clamp(250px, 30vw, 330px);
+      height: clamp(360px, 42vw, 410px);
+      margin: calc(-0.5 * clamp(360px, 42vw, 410px)) 0 0 calc(-0.5 * clamp(250px, 30vw, 330px));
+      transform: rotateY(var(--card-angle, 0deg)) translateZ(var(--radius, 420px));
+      backface-visibility: hidden;
+      overflow: hidden; /* без этого длинные отзывы вылезали за скруглённый край карточки */
+      transition: opacity 0.7s ease;
+      user-select: none;
+    }
+    .review-head { display: flex; align-items: center; gap: 12px; }
+    .review-avatar {
+      flex: 0 0 auto;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 16px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+    }
+    .review-card:nth-child(3n+2) .review-avatar { background: linear-gradient(135deg, var(--purple-deep), var(--purple)); }
+    .review-card:nth-child(3n) .review-avatar { background: linear-gradient(135deg, #c084fc, var(--pink)); }
+    .review-name { font-weight: 700; font-size: 15.5px; }
+    .review-meta { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+    /* каждая звезда — свой блок; доля заливки внутри неё считается через
+       clamp от --rating, поэтому ровно режет и половинные оценки, а не
+       только целые (в отличие от клипа по ширине всей строки звёзд) */
+    .review-stars {
+      display: inline-flex;
+      gap: 2px;
+      margin: 12px 0 10px;
+    }
+    .review-stars .star {
+      position: relative;
+      width: 15px;
+      height: 15px;
+      font-size: 15px;
+      line-height: 1;
+    }
+    .review-stars .star::before {
+      content: "★";
+      position: absolute;
+      inset: 0;
+      color: var(--border);
+    }
+    .review-stars .star::after {
+      content: "★";
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      color: var(--purple);
+    }
+    .review-stars .star:nth-child(1)::after { width: clamp(0%, calc(var(--rating) * 100%), 100%); }
+    .review-stars .star:nth-child(2)::after { width: clamp(0%, calc((var(--rating) - 1) * 100%), 100%); }
+    .review-stars .star:nth-child(3)::after { width: clamp(0%, calc((var(--rating) - 2) * 100%), 100%); }
+    .review-stars .star:nth-child(4)::after { width: clamp(0%, calc((var(--rating) - 3) * 100%), 100%); }
+    .review-stars .star:nth-child(5)::after { width: clamp(0%, calc((var(--rating) - 4) * 100%), 100%); }
+    .review-text {
+      flex: 1 1 auto;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .js .review-text {
+      position: relative;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 7;
+      -webkit-box-orient: vertical;
+    }
+    .js .review-card::after {
+      content: "";
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      bottom: 20px;
+      height: 36px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fdfbff 85%);
+      pointer-events: none;
+    }
+    .reviews-controls { display: none; }
+    .js .reviews-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      margin-top: 8px;
+    }
+    .reviews-arrow {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--purple-deep);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.3s var(--ease), border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .reviews-arrow:hover { transform: translateY(-2px); border-color: var(--purple); box-shadow: var(--shadow-lift); }
+    .reviews-arrow svg { width: 20px; height: 20px; }
+    .reviews-counter { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+    .reviews-counter span { color: var(--purple-deep); font-weight: 700; }
+
     /* ============ FAQ ============ */
     .faq-list {
       max-width: 760px;
@@ -1941,8 +2099,123 @@
       <div class="container centered">
         <p class="eyebrow">Отзывы</p>
         <h2 class="section-title">Что говорят ученики</h2>
-        <p class="section-lead">Здесь скоро появятся отзывы учеников студии</p>
-        <!-- TODO: добавить отзывы (текст, фото или видео), когда они будут готовы -->
+        <p class="section-lead">Отзывы с занятий у Полины</p>
+      </div>
+      <div class="container">
+        <div class="reviews-wrap">
+          <div class="reviews-stage" id="reviews-stage">
+            <div class="reviews-ring" id="reviews-ring">
+            <article class="review-card" style="--card-angle:0deg" data-index="0">
+              <div class="review-head">
+                <span class="review-avatar" aria-hidden="true">А</span>
+                <div>
+                  <p class="review-name">Анна</p>
+                  <p class="review-meta">21 апреля 2026 · Эстрадный вокал</p>
+                </div>
+              </div>
+              <div class="review-stars" style="--rating:4.5" role="img" aria-label="Оценка 4,5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
+              <p class="review-text">Очень нравится заниматься у Полины. С первого дня занятия проходят в непринуждённой позитивной атмосфере. Она ответственный, пунктуальный, чуткий педагог, для которого очень важно помочь ученику достичь результата. На занятиях разучиваем песни (выбрать можно абсолютно любую), специальные упражнения позволяют спеть то и так, как раньше не получалось. Занятия энергозатратные, но это и отлично, постоянно открываются какие-то новые знания и возможности голосового аппарата.</p>
+            </article>
+            <article class="review-card" style="--card-angle:40deg" data-index="1">
+              <div class="review-head">
+                <span class="review-avatar" aria-hidden="true">Д</span>
+                <div>
+                  <p class="review-name">Дарина</p>
+                  <p class="review-meta">3 января 2026 · Сольное пение</p>
+                </div>
+              </div>
+              <div class="review-stars" style="--rating:5" role="img" aria-label="Оценка 5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
+              <p class="review-text">Полина, очень хороший преподаватель! Она очень умная, приятная, чуткая и терпеливая. Каждое занятие проходит на приятной и лёгкой волне. Не смотря на то что я очень много ною — что у меня ничего не получается, она всё чётко и понятно объясняет, достаточно быстро доходит что и как нужно сделать.</p>
+            </article>
+            <article class="review-card" style="--card-angle:80deg" data-index="2">
+              <div class="review-head">
+                <span class="review-avatar" aria-hidden="true">А</span>
+                <div>
+                  <p class="review-name">Александра</p>
+                  <p class="review-meta">3 декабря 2025 · Эстрадный вокал</p>
+                </div>
+              </div>
+              <div class="review-stars" style="--rating:4.5" role="img" aria-label="Оценка 4,5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
+              <p class="review-text">Тот случай, когда педагог и ученик созданы друг для друга😄 Полина помогает раскрыть потенциал. Никогда не думала, что могу петь и брать высокие ноты. Спасибо Полина❤️</p>
+            </article>
+            <article class="review-card" style="--card-angle:120deg" data-index="3">
+              <div class="review-head">
+                <span class="review-avatar" aria-hidden="true">А</span>
+                <div>
+                  <p class="review-name">Александра</p>
+                  <p class="review-meta">20 июля 2025 · Вокал · Постановка голоса и дыхания · Сольное пение</p>
+                </div>
+              </div>
+              <div class="review-stars" style="--rating:5" role="img" aria-label="Оценка 5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
+              <p class="review-text">Полина классная, спасибо ей огромное за занятия. Занимались 5 раз, мне понравилось, но оказалось что пение и разработка голоса — это реально сложный и долгий процесс</p>
+            </article>
+            <article class="review-card" style="--card-angle:160deg" data-index="4">
+              <div class="review-head">
+                <span class="review-avatar" aria-hidden="true">А</span>
+                <div>
+                  <p class="review-name">Анастасия</p>
+                  <p class="review-meta">14 июля 2025 · Эстрадный вокал</p>
+                </div>
+              </div>
+              <div class="review-stars" style="--rating:4.5" role="img" aria-label="Оценка 4,5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
+              <p class="review-text">Полина потрясающий педагог! 🥰 Я давно хотела научится петь в дуэте, но никогда не умела строить дополнительную партию к основной. Полина всего за 2 занятия показала мне множество крутых лайфхаков, которые помогли мне сразу же самостоятельно построить вторую партию к любимой песне. Я вообще не думала, что так возможно! 🥹 Кроме того, Полина показала мне множество дополнительных возможностей для развития своего голоса. На каждый вопрос у неё всегда есть чёткий ответ и объяснение, идеально подобранное под меня. Благодарю и однозначно рекомендую!🙏</p>
+            </article>
+            <article class="review-card" style="--card-angle:200deg" data-index="5">
+              <div class="review-head">
+                <span class="review-avatar" aria-hidden="true">С</span>
+                <div>
+                  <p class="review-name">Софья</p>
+                  <p class="review-meta">5 июня 2025 · Вокал · Эстрадный вокал</p>
+                </div>
+              </div>
+              <div class="review-stars" style="--rating:5" role="img" aria-label="Оценка 5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
+              <p class="review-text">Начали заниматься с Полиной, сейчас уже заканчивается первый абонемент) Ребята, всем советую, Полина действительно профессионал в своём деле и это правда чувствуется (не только из-за наличия образования). Я в восторге начиная от методики преподавания и заканчивая коннектом, который у нас сложился🤝</p>
+            </article>
+            <article class="review-card" style="--card-angle:240deg" data-index="6">
+              <div class="review-head">
+                <span class="review-avatar" aria-hidden="true">Т</span>
+                <div>
+                  <p class="review-name">Татьяна</p>
+                  <p class="review-meta">27 мая 2025 · Джазовый вокал</p>
+                </div>
+              </div>
+              <div class="review-stars" style="--rating:4.5" role="img" aria-label="Оценка 4,5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
+              <p class="review-text">Приятная девушка и настоящий профессионал несмотря на юный возраст. Эффективные методы, понятные техники, заметный прирост результата на каждом занятии! Спасибо огромное, очень довольна!</p>
+            </article>
+            <article class="review-card" style="--card-angle:280deg" data-index="7">
+              <div class="review-head">
+                <span class="review-avatar" aria-hidden="true">О</span>
+                <div>
+                  <p class="review-name">Ольга</p>
+                  <p class="review-meta">22 января 2025 · Эстрадный вокал</p>
+                </div>
+              </div>
+              <div class="review-stars" style="--rating:4.5" role="img" aria-label="Оценка 4,5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
+              <p class="review-text">Полина — потрясающий педагог!😍 Сразу с первого занятия точно определила, в чём у меня проблемы, и как быстро их исправить. Сначала у меня не получалось, но Полина смогла объяснить сложные техники разными способами и дать понятные примеры и ассоциации🔥 Я занимаюсь уже несколько недель и сама заметила, как изменился мой голос, даже молодой человек мне сказал, что я стала ярче и красивее разговаривать)))))) В общем, спасибо огромное Полине! Я в восторге!) Если ищете себе педагога по вокалу — обязательно идите к ней, 1000% советую!!!💞</p>
+            </article>
+            <article class="review-card" style="--card-angle:320deg" data-index="8">
+              <div class="review-head">
+                <span class="review-avatar" aria-hidden="true">Д</span>
+                <div>
+                  <p class="review-name">Дарья</p>
+                  <p class="review-meta">16 января 2025 · Вокал · Эстрадный вокал</p>
+                </div>
+              </div>
+              <div class="review-stars" style="--rating:5" role="img" aria-label="Оценка 5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
+              <p class="review-text">Полина — удивительно тактичный, открытый и внимательный человек. Атмосфера на занятиях очень дружественная и поддерживающая. Мы вместе по-доброму смеёмся над ошибками, а само занятие пролетает как одно мгновение — кажется, что только начали, а уже пора уходить. Когда я пошла на занятия, запрос был самый простой — немного «подтянуть». Были ожидания, что на выходе получится примерно то же самое, но чуть-чуть лучше. Представьте моё удивление, когда практически на первом занятии стало понятно, что я могу что-то принципиально иное, чем было до этого! Это не какое-то улучшательство, это настоящее открытие совершенно нового способа звукоизвлечения.🤯 Полина — по-настоящему талантливый педагог. Кто не верит — приходите на занятия)) Я очень довольна, что выбрала именно Полину.</p>
+            </article>
+            </div>
+          </div>
+          <div class="reviews-controls">
+            <button class="reviews-arrow" type="button" data-dir="-1" aria-label="Предыдущий отзыв">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+            </button>
+            <p class="reviews-counter"><span id="reviews-current">1</span> / 9</p>
+            <button class="reviews-arrow" type="button" data-dir="1" aria-label="Следующий отзыв">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -2331,6 +2604,129 @@
 
           sync();
         }
+      }
+
+      /* Отзывы: объёмная круговая карусель. Кольцо карточек стоит по кругу
+         через rotateY+translateZ у каждой карточки, а листание — это
+         поворот всего кольца целиком. Крутить можно вручную (мышь и тач),
+         дальняя половина круга прячется сама через backface-visibility. */
+      var reviewsStage = document.getElementById("reviews-stage");
+      if (reviewsStage) {
+        var reviewsRing = document.getElementById("reviews-ring");
+        var reviewCards = Array.prototype.slice.call(reviewsRing.querySelectorAll(".review-card"));
+        var n = reviewCards.length;
+        var angleStep = 360 / n;
+        var current = 0;
+        var reviewsCounter = document.getElementById("reviews-current");
+        var reviewsArrows = document.querySelectorAll(".reviews-arrow");
+        var reviewsSuppressClickUntil = 0;
+        var autoTimer = null;
+
+        reviewCards.forEach(function (card, i) {
+          card.style.setProperty("--card-angle", (i * angleStep) + "deg");
+        });
+
+        var setRadius = function () {
+          var w = reviewCards[0].getBoundingClientRect().width;
+          var radius = Math.round((w / 2) / Math.tan(Math.PI / n));
+          reviewsRing.style.setProperty("--radius", radius + "px");
+        };
+        setRadius();
+        window.addEventListener("resize", setRadius);
+
+        var render = function () {
+          reviewsRing.style.transform =
+            "translateZ(calc(-1 * var(--radius))) rotateY(" + (-current * angleStep) + "deg)";
+          reviewCards.forEach(function (card, i) {
+            var diff = ((i - current) % n + n) % n;
+            if (diff > n / 2) diff -= n;
+            var abs = Math.abs(diff);
+            card.style.opacity = abs === 0 ? 1 : abs === 1 ? 0.6 : abs === 2 ? 0.2 : 0;
+            card.style.pointerEvents = abs <= 2 ? "auto" : "none";
+            card.tabIndex = abs === 0 ? 0 : -1;
+            card.setAttribute("aria-hidden", abs === 0 ? "false" : "true");
+          });
+          if (reviewsCounter) reviewsCounter.textContent = current + 1;
+        };
+
+        var goTo = function (i) {
+          current = ((i % n) + n) % n;
+          render();
+        };
+
+        reviewCards.forEach(function (card, i) {
+          card.addEventListener("click", function () {
+            if (Date.now() < reviewsSuppressClickUntil) return;
+            if (i !== current) { goTo(i); restartAuto(); }
+          });
+        });
+
+        reviewsArrows.forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            goTo(current + Number(btn.dataset.dir));
+            restartAuto();
+          });
+        });
+
+        var startAuto = function () {
+          if (prefersReducedMotion) return;
+          autoTimer = window.setInterval(function () { goTo(current + 1); }, 5200);
+        };
+        var stopAuto = function () {
+          if (autoTimer) { window.clearInterval(autoTimer); autoTimer = null; }
+        };
+        var restartAuto = function () { stopAuto(); startAuto(); };
+
+        reviewsStage.addEventListener("mouseenter", stopAuto);
+        reviewsStage.addEventListener("mouseleave", startAuto);
+
+        /* перетаскивание — крутим кольцо руками, мышью и тачем одинаково:
+           тут нет настоящей прокрутки, только 3D-поворот */
+        var pressed = false, dragging = false, startX = 0, moved = 0, dragBaseAngle = 0, lastClientX = 0;
+
+        reviewsStage.addEventListener("pointerdown", function (e) {
+          pressed = true;
+          dragging = false;
+          moved = 0;
+          startX = e.clientX;
+          lastClientX = e.clientX;
+          dragBaseAngle = -current * angleStep;
+          stopAuto();
+        });
+
+        window.addEventListener("pointermove", function (e) {
+          if (!pressed) return;
+          lastClientX = e.clientX;
+          var delta = e.clientX - startX;
+          moved = Math.max(moved, Math.abs(delta));
+          if (!dragging && moved > 4) {
+            dragging = true;
+            reviewsRing.classList.add("dragging");
+          }
+          if (dragging) {
+            var deg = dragBaseAngle + delta * 0.3;
+            reviewsRing.style.transform = "translateZ(calc(-1 * var(--radius))) rotateY(" + deg + "deg)";
+          }
+        });
+
+        var endDrag = function () {
+          if (!pressed) return;
+          pressed = false;
+          reviewsRing.classList.remove("dragging");
+          if (dragging) {
+            var delta = lastClientX - startX;
+            var deg = dragBaseAngle + delta * 0.3;
+            goTo(Math.round(-deg / angleStep));
+            reviewsSuppressClickUntil = Date.now() + 250;
+          }
+          dragging = false;
+          restartAuto();
+        };
+        window.addEventListener("pointerup", endDrag);
+        window.addEventListener("pointercancel", endDrag);
+
+        render();
+        startAuto();
       }
 
       /* «Подойдёт вам, если…»: мягкое пятно света следует за курсором.
