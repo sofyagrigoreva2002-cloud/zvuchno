@@ -1163,88 +1163,79 @@
       color: var(--purple-deep);
     }
 
-    /* ============ ОТЗЫВЫ (две встречные ленты) ============ */
-    /* Та же дорожка, что и у фото концертов и у фраз «Подойдёт вам, если…»:
-       верхняя лента едет влево, нижняя вправо, обе листаются вручную и
-       зацикливаются одним и тем же скриптом — здесь только своя карточка. */
-    .reviews {
-      display: grid;
-      gap: clamp(14px, 2vw, 26px);
-      margin-top: clamp(22px, 2.6vw, 32px);
-      width: calc(100vw - var(--sbw));
-      margin-inline: calc((100vw - var(--sbw)) / -2 + 50%);
+    /* ============ ОТЗЫВЫ (галерея скриншотов, по одному крупно) ============ */
+    /* Тот же приём, что и у карусели педагогов: scroll-snap по одному слайду,
+       стрелки и точки. Раз это скан настоящего отзыва, а не декоративное
+       фото — показываем целиком (max-width/max-height), не обрезаем. */
+    .reviews-gallery { margin-top: clamp(24px, 3vw, 40px); }
+    .reviews-gallery-track {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      margin-inline: calc(-1 * clamp(18px, 4vw, 32px));
+      padding-inline: clamp(18px, 4vw, 32px);
+      scroll-padding-inline: clamp(18px, 4vw, 32px);
+      gap: clamp(18px, 4vw, 32px);
     }
-    .review-row { padding: 4px 0; }
-    .review-chip {
-      flex: 0 0 auto;
-      width: clamp(240px, 26vw, 320px);
-      margin-right: clamp(24px, 3vw, 40px);
-      background: linear-gradient(180deg, #ffffff 0%, #fdfbff 100%);
+    .reviews-gallery-track::-webkit-scrollbar { display: none; }
+    .reviews-slide {
+      flex: 0 0 100%;
+      scroll-snap-align: start;
+      display: flex;
+      justify-content: center;
+    }
+    .reviews-slide img {
+      max-width: min(560px, 100%);
+      max-height: min(72vh, 760px);
+      width: auto;
+      height: auto;
+      border-radius: 20px;
       border: 1px solid rgba(229, 220, 246, 0.85);
-      border-radius: 18px;
-      box-shadow: var(--shadow-soft);
-      padding: 18px 20px;
+      box-shadow: var(--shadow-lift);
     }
-    .review-chip-head { display: flex; align-items: center; gap: 11px; }
-    .review-avatar {
-      flex: 0 0 auto;
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
+    /* без JS точки всё равно не появятся (их создаёт скрипт), а стрелки
+       никого никуда не листают — прячем ряд управления, галерею при этом
+       можно пролистать и так: scroll-snap работает и без скрипта */
+    .reviews-gallery-controls { display: none; }
+    .js .reviews-gallery-controls {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: var(--font-display);
-      font-size: 14px;
-      color: #fff;
-      background: linear-gradient(135deg, var(--purple), var(--pink));
+      gap: 20px;
+      margin-top: 24px;
     }
-    /* :nth-of-type, а не :nth-child — соседи через одного это span.phrase-sep,
-       он бы сбивал счёт при обычном nth-child */
-    .review-chip:nth-of-type(3n+2) .review-avatar { background: linear-gradient(135deg, var(--purple-deep), var(--purple)); }
-    .review-chip:nth-of-type(3n) .review-avatar { background: linear-gradient(135deg, #c084fc, var(--pink)); }
-    .review-chip-name { font-weight: 700; font-size: 14.5px; }
-    /* каждая звезда — свой блок; доля заливки внутри неё считается через
-       clamp от --rating, поэтому ровно режет и половинные оценки, а не
-       только целые (в отличие от клипа по ширине всей строки звёзд) */
-    .review-stars {
+    .reviews-gallery-arrow {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--purple-deep);
       display: inline-flex;
-      gap: 1px;
-      margin-top: 3px;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.3s var(--ease), border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
     }
-    .review-stars .star {
-      position: relative;
-      width: 12px;
-      height: 12px;
-      font-size: 12px;
-      line-height: 1;
+    .reviews-gallery-arrow:hover { transform: translateY(-2px); border-color: var(--purple); box-shadow: var(--shadow-lift); }
+    .reviews-gallery-arrow:disabled { opacity: 0.35; cursor: default; transform: none; }
+    .reviews-gallery-arrow svg { width: 20px; height: 20px; }
+    .reviews-gallery-dots { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 200px; }
+    .reviews-gallery-dots button {
+      width: 8px;
+      height: 8px;
+      padding: 0;
+      border: none;
+      border-radius: 999px;
+      background: #ddd0f5;
+      cursor: pointer;
+      transition: background 0.35s ease, width 0.35s var(--ease);
     }
-    .review-stars .star::before {
-      content: "★";
-      position: absolute;
-      inset: 0;
-      color: var(--border);
-    }
-    .review-stars .star::after {
-      content: "★";
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      white-space: nowrap;
-      color: var(--purple);
-    }
-    .review-stars .star:nth-child(1)::after { width: clamp(0%, calc(var(--rating) * 100%), 100%); }
-    .review-stars .star:nth-child(2)::after { width: clamp(0%, calc((var(--rating) - 1) * 100%), 100%); }
-    .review-stars .star:nth-child(3)::after { width: clamp(0%, calc((var(--rating) - 2) * 100%), 100%); }
-    .review-stars .star:nth-child(4)::after { width: clamp(0%, calc((var(--rating) - 3) * 100%), 100%); }
-    .review-stars .star:nth-child(5)::after { width: clamp(0%, calc((var(--rating) - 4) * 100%), 100%); }
-    .review-chip-quote {
-      margin-top: 10px;
-      color: var(--text);
-      font-size: 14px;
-      font-style: italic;
-      line-height: 1.5;
-    }
+    .reviews-gallery-dots button.active { background: var(--purple); width: 22px; }
 
     /* ============ FAQ ============ */
     .faq-list {
@@ -2026,112 +2017,45 @@
         <h2 class="section-title">Что говорят ученики</h2>
         <p class="section-lead">Отзывы с занятий у Полины</p>
       </div>
-      <div class="reviews">
-        <div class="marquee-row review-row">
-          <div class="marquee-track review-track marquee-left" data-speed="16">
-            <div class="review-chip">
-              <div class="review-chip-head">
-                <span class="review-avatar" aria-hidden="true">А</span>
-                <div>
-                  <p class="review-chip-name">Анна</p>
-                  <div class="review-stars" style="--rating:4.5" role="img" aria-label="Оценка 4,5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
-                </div>
-              </div>
-              <p class="review-chip-quote">«Очень нравится заниматься у Полины. С первого дня занятия проходят в непринуждённой позитивной атмосфере.»</p>
-            </div>
-            <span class="phrase-sep" aria-hidden="true">✦</span>
-            <div class="review-chip">
-              <div class="review-chip-head">
-                <span class="review-avatar" aria-hidden="true">Д</span>
-                <div>
-                  <p class="review-chip-name">Дарина</p>
-                  <div class="review-stars" style="--rating:5" role="img" aria-label="Оценка 5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
-                </div>
-              </div>
-              <p class="review-chip-quote">«Полина, очень хороший преподаватель! Она очень умная, приятная, чуткая и терпеливая.»</p>
-            </div>
-            <span class="phrase-sep" aria-hidden="true">✦</span>
-            <div class="review-chip">
-              <div class="review-chip-head">
-                <span class="review-avatar" aria-hidden="true">А</span>
-                <div>
-                  <p class="review-chip-name">Александра</p>
-                  <div class="review-stars" style="--rating:4.5" role="img" aria-label="Оценка 4,5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
-                </div>
-              </div>
-              <p class="review-chip-quote">«Тот случай, когда педагог и ученик созданы друг для друга😄 Полина помогает раскрыть потенциал.»</p>
-            </div>
-            <span class="phrase-sep" aria-hidden="true">✦</span>
-            <div class="review-chip">
-              <div class="review-chip-head">
-                <span class="review-avatar" aria-hidden="true">А</span>
-                <div>
-                  <p class="review-chip-name">Александра</p>
-                  <div class="review-stars" style="--rating:5" role="img" aria-label="Оценка 5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
-                </div>
-              </div>
-              <p class="review-chip-quote">«Полина классная, спасибо ей огромное за занятия.»</p>
-            </div>
-            <span class="phrase-sep" aria-hidden="true">✦</span>
-            <div class="review-chip">
-              <div class="review-chip-head">
-                <span class="review-avatar" aria-hidden="true">А</span>
-                <div>
-                  <p class="review-chip-name">Анастасия</p>
-                  <div class="review-stars" style="--rating:4.5" role="img" aria-label="Оценка 4,5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
-                </div>
-              </div>
-              <p class="review-chip-quote">«Полина потрясающий педагог! 🥰»</p>
-            </div>
-            <span class="phrase-sep" aria-hidden="true">✦</span>
+      <div class="container">
+        <div class="reviews-gallery">
+          <div class="reviews-gallery-track" id="reviews-gallery-track">
+        <figure class="reviews-slide">
+          <img src="assets/reviews/01.webp" alt="Отзыв Анна, 21 апреля 2026, Эстрадный вокал, 5 из 5 звёзд: «Очень нравится заниматься у Полины. С первого дня занятия проходят в непринуждённой позитивной атмосфере. Она ответственный, пунктуальный, чуткий педагог, для которого очень важно помочь ученику достичь результата. На занятиях разучиваем песни (выбрать можно абсолютно любую), специальные упражнения позволяют спеть то и так, как раньше не получалось. Занятия энергозатратные, но это и отлично, постоянно открываются какие-то новые знания и возможности голосового аппарата.»" loading="lazy" width="1290" height="878">
+        </figure>
+        <figure class="reviews-slide">
+          <img src="assets/reviews/02.webp" alt="Отзыв Дарина, 3 января 2026, Сольное пение, 5 из 5 звёзд: «Полина, очень хороший преподаватель! Она очень умная, приятная, чуткая и терпеливая. Каждое занятие проходит на приятной и лёгкой волне. Не смотря на то что я очень много ною — что у меня ничего не получается, она всё чётко и понятно объясняет, достаточно быстро доходит что и как нужно сделать.»" loading="lazy" width="1290" height="681">
+        </figure>
+        <figure class="reviews-slide">
+          <img src="assets/reviews/03.webp" alt="Отзыв Александра, 3 декабря 2025, Эстрадный вокал, 5 из 5 звёзд: «Тот случай, когда педагог и ученик созданы друг для друга. Полина помогает раскрыть потенциал. Никогда не думала, что могу петь и брать высокие ноты. Спасибо, Полина.»" loading="lazy" width="1290" height="614">
+        </figure>
+        <figure class="reviews-slide">
+          <img src="assets/reviews/04.webp" alt="Отзыв Александра, 20 июля 2025, Вокал, постановка голоса и дыхания, сольное пение, 5 из 5 звёзд: «Полина классная, спасибо ей огромное за занятия. Занимались 5 раз, мне понравилось, но оказалось что пение и разработка голоса — это реально сложный и долгий процесс.»" loading="lazy" width="1290" height="539">
+        </figure>
+        <figure class="reviews-slide">
+          <img src="assets/reviews/05.webp" alt="Отзыв Анастасия, 14 июля 2025, Эстрадный вокал, 5 из 5 звёзд: «Полина потрясающий педагог! Я давно хотела научиться петь в дуэте, но никогда не умела строить дополнительную партию к основной. Полина всего за 2 занятия показала мне множество крутых лайфхаков, которые помогли мне сразу же самостоятельно построить вторую партию к любимой песне. Я вообще не думала, что так возможно! Кроме того, Полина показала мне множество дополнительных возможностей для развития своего голоса. На каждый вопрос у неё всегда есть чёткий ответ и объяснение, идеально подобранное под меня. Благодарю и однозначно рекомендую!»" loading="lazy" width="1290" height="1550">
+        </figure>
+        <figure class="reviews-slide">
+          <img src="assets/reviews/06.webp" alt="Отзыв Софья, 5 июня 2025, Вокал, эстрадный вокал, 5 из 5 звёзд: «Начали заниматься с Полиной, сейчас уже заканчивается первый абонемент. Ребята, всем советую, Полина действительно профессионал в своём деле и это правда чувствуется (не только из-за наличия образования). Я в восторге начиная от методики преподавания и заканчивая коннектом, который у нас сложился.»" loading="lazy" width="1290" height="837">
+        </figure>
+        <figure class="reviews-slide">
+          <img src="assets/reviews/07.webp" alt="Отзыв Татьяна, 27 мая 2025, Джазовый вокал, 5 из 5 звёзд: «Приятная девушка и настоящий профессионал несмотря на юный возраст. Эффективные методы, понятные техники, заметный прирост результата на каждом занятии! Спасибо огромное, очень довольна!»" loading="lazy" width="1290" height="527">
+        </figure>
+        <figure class="reviews-slide">
+          <img src="assets/reviews/08.webp" alt="Отзыв Ольга, 22 января 2025, Эстрадный вокал, 5 из 5 звёзд: «Полина — потрясающий педагог! Сразу с первого занятия точно определила, в чём у меня проблемы, и как быстро их исправить. Сначала у меня не получалось, но Полина смогла объяснить сложные техники разными способами и дать понятные примеры и ассоциации. Я занимаюсь уже несколько недель и сама заметила, как изменился мой голос, даже молодой человек мне сказал, что я стала ярче и красивее разговаривать. В общем, спасибо огромное Полине! Я в восторге! Если ищете себе педагога по вокалу — обязательно идите к ней, 1000% советую!»" loading="lazy" width="1290" height="1229">
+        </figure>
+        <figure class="reviews-slide">
+          <img src="assets/reviews/09.webp" alt="Отзыв Дарья, 16 января 2025, Вокал, эстрадный вокал, 5 из 5 звёзд: «Полина — удивительно тактичный, открытый и внимательный человек. Атмосфера на занятиях очень дружественная и поддерживающая. Мы вместе по-доброму смеёмся над ошибками, а само занятие пролетает как одно мгновение — кажется, что только начали, а уже пора уходить. Когда я пошла на занятия, запрос был самый простой — немного «подтянуть». Были ожидания, что на выходе получится примерно то же самое, но чуть-чуть лучше. Представьте моё удивление, когда практически на первом занятии стало понятно, что я могу что-то принципиально иное, чем было до этого! Это не какое-то улучшательство, это настоящее открытие совершенно нового способа звукоизвлечения. Полина — по-настоящему талантливый педагог. Кто не верит — приходите на занятия. Я очень довольна, что выбрала именно Полину.»" loading="lazy" width="1290" height="1665">
+        </figure>
           </div>
-        </div>
-        <div class="marquee-row review-row">
-          <div class="marquee-track review-track marquee-right" data-speed="14">
-            <div class="review-chip">
-              <div class="review-chip-head">
-                <span class="review-avatar" aria-hidden="true">С</span>
-                <div>
-                  <p class="review-chip-name">Софья</p>
-                  <div class="review-stars" style="--rating:5" role="img" aria-label="Оценка 5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
-                </div>
-              </div>
-              <p class="review-chip-quote">«Начали заниматься с Полиной, сейчас уже заканчивается первый абонемент)»</p>
-            </div>
-            <span class="phrase-sep" aria-hidden="true">✦</span>
-            <div class="review-chip">
-              <div class="review-chip-head">
-                <span class="review-avatar" aria-hidden="true">Т</span>
-                <div>
-                  <p class="review-chip-name">Татьяна</p>
-                  <div class="review-stars" style="--rating:4.5" role="img" aria-label="Оценка 4,5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
-                </div>
-              </div>
-              <p class="review-chip-quote">«Приятная девушка и настоящий профессионал несмотря на юный возраст.»</p>
-            </div>
-            <span class="phrase-sep" aria-hidden="true">✦</span>
-            <div class="review-chip">
-              <div class="review-chip-head">
-                <span class="review-avatar" aria-hidden="true">О</span>
-                <div>
-                  <p class="review-chip-name">Ольга</p>
-                  <div class="review-stars" style="--rating:4.5" role="img" aria-label="Оценка 4,5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
-                </div>
-              </div>
-              <p class="review-chip-quote">«Полина — потрясающий педагог!😍»</p>
-            </div>
-            <span class="phrase-sep" aria-hidden="true">✦</span>
-            <div class="review-chip">
-              <div class="review-chip-head">
-                <span class="review-avatar" aria-hidden="true">Д</span>
-                <div>
-                  <p class="review-chip-name">Дарья</p>
-                  <div class="review-stars" style="--rating:5" role="img" aria-label="Оценка 5 из 5 звёзд"><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span></div>
-                </div>
-              </div>
-              <p class="review-chip-quote">«Полина — удивительно тактичный, открытый и внимательный человек.»</p>
-            </div>
-            <span class="phrase-sep" aria-hidden="true">✦</span>
+          <div class="reviews-gallery-controls">
+            <button class="reviews-gallery-arrow" type="button" data-dir="-1" aria-label="Предыдущий отзыв">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+            </button>
+            <div class="reviews-gallery-dots" id="reviews-gallery-dots"></div>
+            <button class="reviews-gallery-arrow" type="button" data-dir="1" aria-label="Следующий отзыв">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
           </div>
         </div>
       </div>
@@ -2522,6 +2446,60 @@
 
           sync();
         }
+      }
+
+      /* Галерея отзывов: те же стрелки/точки, что у карусели педагогов —
+         один скриншот на весь экран за раз, перелистывается свайпом,
+         стрелками или точками. */
+      var reviewsGallery = document.getElementById("reviews-gallery-track");
+      if (reviewsGallery) {
+        var gSlides = reviewsGallery.querySelectorAll(".reviews-slide");
+        var gDotsBox = document.getElementById("reviews-gallery-dots");
+        var gArrows = document.querySelectorAll(".reviews-gallery-arrow");
+        var gCurrent = 0;
+        var gDots = [];
+
+        var gStep = function () {
+          return gSlides.length > 1
+            ? gSlides[1].offsetLeft - gSlides[0].offsetLeft
+            : gSlides[0].offsetWidth;
+        };
+
+        var gGoTo = function (i) {
+          gCurrent = Math.max(0, Math.min(i, gSlides.length - 1));
+          reviewsGallery.scrollTo({ left: gStep() * gCurrent, behavior: "smooth" });
+        };
+
+        var gSync = function () {
+          var i = Math.round(reviewsGallery.scrollLeft / gStep());
+          gCurrent = Math.max(0, Math.min(i, gSlides.length - 1));
+          gDots.forEach(function (dot, n) { dot.classList.toggle("active", n === gCurrent); });
+          gArrows.forEach(function (btn) {
+            var dir = Number(btn.dataset.dir);
+            btn.disabled = dir < 0 ? gCurrent === 0 : gCurrent === gSlides.length - 1;
+          });
+        };
+
+        gSlides.forEach(function (slide, i) {
+          var dot = document.createElement("button");
+          dot.type = "button";
+          dot.setAttribute("aria-label", "Отзыв " + (i + 1));
+          dot.addEventListener("click", function () { gGoTo(i); });
+          gDotsBox.appendChild(dot);
+          gDots.push(dot);
+        });
+
+        gArrows.forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            gGoTo(gCurrent + Number(btn.dataset.dir));
+          });
+        });
+
+        reviewsGallery.addEventListener("scroll", function () {
+          window.requestAnimationFrame(gSync);
+        }, { passive: true });
+
+        gSync();
       }
 
       /* «Подойдёт вам, если…»: мягкое пятно света следует за курсором.
