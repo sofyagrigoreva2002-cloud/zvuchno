@@ -1170,6 +1170,10 @@
     .reviews-gallery { margin-top: clamp(24px, 3vw, 40px); }
     .reviews-gallery-track {
       display: flex;
+      /* без этого высота каждого слайда по умолчанию растягивалась (align-items:
+         stretch) до высоты самого длинного отзыва — короткие скриншоты
+         сплющивало по вертикали */
+      align-items: center;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       scroll-behavior: smooth;
@@ -1186,6 +1190,7 @@
       scroll-snap-align: start;
       display: flex;
       justify-content: center;
+      align-items: center; /* та же причина: иначе тянет img по высоте */
     }
     .reviews-slide img {
       max-width: min(560px, 100%);
