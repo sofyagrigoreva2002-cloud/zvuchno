@@ -1999,7 +1999,7 @@
         <p class="section-lead">Отзывы с занятий у Полины</p>
       </div>
       <div class="container">
-        <div class="reviews-grid">
+        <div class="reviews-grid" id="reviews-grid">
           <article class="review-card">
             <p class="review-stars" role="img" aria-label="Оценка 5 из 5">★★★★★</p>
             <p class="review-name">Александра</p>
@@ -2018,37 +2018,37 @@
             <p class="review-meta">Педагог: Полина Мирзоева<br>3 января 2026</p>
             <p class="review-text">Полина, очень хороший преподаватель! Она очень умная, приятная, чуткая и терпеливая. Каждое занятие проходит на приятной и лёгкой волне. Не смотря на то что я очень много ною — что у меня ничего не получается, она всё чётко и понятно объясняет, достаточно быстро доходит что и как нужно сделать.</p>
           </article>
-          <article class="review-card is-hidden">
+          <article class="review-card is-hidden" data-extra>
             <p class="review-stars" role="img" aria-label="Оценка 5 из 5">★★★★★</p>
             <p class="review-name">Александра</p>
             <p class="review-meta">Педагог: Полина Мирзоева<br>20 июля 2025</p>
             <p class="review-text">Полина классная, спасибо ей огромное за занятия. Занимались 5 раз, мне понравилось, но оказалось что пение и разработка голоса — это реально сложный и долгий процесс.</p>
           </article>
-          <article class="review-card is-hidden">
+          <article class="review-card is-hidden" data-extra>
             <p class="review-stars" role="img" aria-label="Оценка 5 из 5">★★★★★</p>
             <p class="review-name">Софья</p>
             <p class="review-meta">Педагог: Полина Мирзоева<br>5 июня 2025</p>
             <p class="review-text">Начали заниматься с Полиной, сейчас уже заканчивается первый абонемент. Ребята, всем советую, Полина действительно профессионал в своём деле и это правда чувствуется (не только из-за наличия образования). Я в восторге начиная от методики преподавания и заканчивая коннектом, который у нас сложился.</p>
           </article>
-          <article class="review-card is-hidden">
+          <article class="review-card is-hidden" data-extra>
             <p class="review-stars" role="img" aria-label="Оценка 5 из 5">★★★★★</p>
             <p class="review-name">Анна</p>
             <p class="review-meta">Педагог: Полина Мирзоева<br>21 апреля 2026</p>
             <p class="review-text">Очень нравится заниматься у Полины. С первого дня занятия проходят в непринуждённой позитивной атмосфере. Она ответственный, пунктуальный, чуткий педагог, для которого очень важно помочь ученику достичь результата. На занятиях разучиваем песни (выбрать можно абсолютно любую), специальные упражнения позволяют спеть то и так, как раньше не получалось. Занятия энергозатратные, но это и отлично, постоянно открываются какие-то новые знания и возможности голосового аппарата.</p>
           </article>
-          <article class="review-card is-hidden">
+          <article class="review-card is-hidden" data-extra>
             <p class="review-stars" role="img" aria-label="Оценка 5 из 5">★★★★★</p>
             <p class="review-name">Ольга</p>
             <p class="review-meta">Педагог: Полина Мирзоева<br>22 января 2025</p>
             <p class="review-text">Полина — потрясающий педагог! Сразу с первого занятия точно определила, в чём у меня проблемы, и как быстро их исправить. Сначала у меня не получалось, но Полина смогла объяснить сложные техники разными способами и дать понятные примеры и ассоциации. Я занимаюсь уже несколько недель и сама заметила, как изменился мой голос, даже молодой человек мне сказал, что я стала ярче и красивее разговаривать. В общем, спасибо огромное Полине! Если ищете себе педагога по вокалу — обязательно идите к ней.</p>
           </article>
-          <article class="review-card is-hidden">
+          <article class="review-card is-hidden" data-extra>
             <p class="review-stars" role="img" aria-label="Оценка 5 из 5">★★★★★</p>
             <p class="review-name">Анастасия</p>
             <p class="review-meta">Педагог: Полина Мирзоева<br>14 июля 2025</p>
             <p class="review-text">Полина потрясающий педагог! Я давно хотела научиться петь в дуэте, но никогда не умела строить дополнительную партию к основной. Полина всего за 2 занятия показала мне множество крутых лайфхаков, которые помогли мне сразу же самостоятельно построить вторую партию к любимой песне. Я вообще не думала, что так возможно! Кроме того, Полина показала мне множество дополнительных возможностей для развития своего голоса. На каждый вопрос у неё всегда есть чёткий ответ и объяснение, идеально подобранное под меня. Благодарю и однозначно рекомендую!</p>
           </article>
-          <article class="review-card is-hidden">
+          <article class="review-card is-hidden" data-extra>
             <p class="review-stars" role="img" aria-label="Оценка 5 из 5">★★★★★</p>
             <p class="review-name">Дарья</p>
             <p class="review-meta">Педагог: Полина Мирзоева<br>16 января 2025</p>
@@ -2056,7 +2056,7 @@
           </article>
         </div>
         <div class="reviews-more">
-          <button type="button" id="reviews-more-btn">Посмотреть ещё</button>
+          <button type="button" id="reviews-more-btn" aria-expanded="false" aria-controls="reviews-grid">Посмотреть ещё</button>
         </div>
       </div>
     </section>
@@ -2448,14 +2448,25 @@
         }
       }
 
-      /* Отзывы: кнопка раскрывает остальные карточки и убирает саму себя */
+      /* Отзывы: одна кнопка разворачивает и сворачивает список обратно */
       var reviewsMoreBtn = document.getElementById("reviews-more-btn");
       if (reviewsMoreBtn) {
+        var extraReviews = document.querySelectorAll(".review-card[data-extra]");
+        var reviewsExpanded = false;
+
         reviewsMoreBtn.addEventListener("click", function () {
-          document.querySelectorAll(".review-card.is-hidden").forEach(function (card) {
-            card.classList.remove("is-hidden");
+          reviewsExpanded = !reviewsExpanded;
+          extraReviews.forEach(function (card) {
+            card.classList.toggle("is-hidden", !reviewsExpanded);
           });
-          reviewsMoreBtn.closest(".reviews-more").remove();
+          reviewsMoreBtn.textContent = reviewsExpanded ? "Свернуть" : "Посмотреть ещё";
+          reviewsMoreBtn.setAttribute("aria-expanded", reviewsExpanded ? "true" : "false");
+
+          /* при сворачивании список укорачивается на шесть карточек,
+             и человек оказывается уже в следующей секции — возвращаем к отзывам */
+          if (!reviewsExpanded) {
+            document.getElementById("reviews").scrollIntoView({ block: "start" });
+          }
         });
       }
 
