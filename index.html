@@ -574,53 +574,51 @@
       box-shadow: 0 10px 22px rgba(124, 58, 237, 0.18);
     }
 
-    /* ============ «ПОДОЙДЁТ ВАМ, ЕСЛИ…» — БЕГУЩИЕ СТРОКИ ============ */
-    /* Две встречные строки во всю ширину экрана. Ход медленный, при наведении
-       строка замирает, курсором можно тянуть — читать не мешает. */
-    .phrases {
+    /* ============ «ПОДОЙДЁТ ВАМ, ЕСЛИ…» — СПИСОК ============ */
+    /* Спокойный список в две колонки: без карточек, рамок, теней и движения.
+       Виден весь сразу — ничего не едет и не прячется за краем экрана. */
+    .fit-list {
+      list-style: none;
+      margin-top: clamp(24px, 2.8vw, 34px);
       display: grid;
-      gap: clamp(14px, 2vw, 26px);
-      margin-top: clamp(22px, 2.6vw, 32px);
-      width: calc(100vw - var(--sbw));
-      margin-inline: calc((100vw - var(--sbw)) / -2 + 50%);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(20px, 2.4vw, 30px) clamp(32px, 5vw, 72px);
+      max-width: 940px;
     }
-    .phrase-row { padding: 4px 0; }
-    .phrase {
-      flex: 0 0 auto;
-      width: clamp(260px, 30vw, 380px);
-      margin-right: clamp(24px, 3vw, 40px);
+    @media (max-width: 700px) {
+      .fit-list { grid-template-columns: 1fr; }
     }
-    .phrase h3 {
-      /* намеренно НЕ Unbounded: широкий заголовочный шрифт здесь сливался
-         с самим заголовком секции — фразы читались как шесть равных заголовков */
+    .fit-list li {
+      position: relative;
+      padding-left: 26px;
+      min-width: 0;
+    }
+    /* маркер — короткий штрих в цвет акцента вместо круглого буллета */
+    .fit-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.62em;
+      width: 14px;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--purple);
+    }
+    .fit-list h3 {
+      /* намеренно НЕ Unbounded: широкий заголовочный шрифт сливался
+         с самим заголовком секции — пункты читались как равные заголовки */
       font-family: var(--font-body);
       font-weight: 700;
-      font-size: clamp(18.5px, 1.95vw, 24px);
-      line-height: 1.3;
-      letter-spacing: -0.015em;
-      margin-bottom: 8px;
-      /* две строки минимум — тогда описания у соседних фраз идут на одном уровне */
-      min-height: 2.6em;
+      font-size: clamp(16.5px, 1.6vw, 19px);
+      line-height: 1.35;
+      letter-spacing: -0.01em;
     }
-    .phrase p {
+    .fit-list p {
+      margin-top: 5px;
       color: var(--muted);
-      font-size: clamp(14.5px, 1.4vw, 16px);
-      line-height: 1.55;
+      font-size: clamp(14px, 1.35vw, 15.5px);
+      line-height: 1.5;
     }
-    /* разделитель между фразами */
-    .phrase-sep {
-      flex: 0 0 auto;
-      align-self: center;
-      margin-right: clamp(24px, 3vw, 40px);
-      font-size: clamp(16px, 1.8vw, 22px);
-      color: var(--purple);
-      opacity: 0.55;
-    }
-    /* фраза под курсором выделяется, соседние приглушаются */
-    .phrase-track .phrase { transition: opacity 0.35s ease; }
-    .phrase-row:hover .phrase { opacity: 0.4; }
-    .phrase-row:hover .phrase:hover { opacity: 1; }
-    .phrase-row:hover .phrase:hover h3 { color: var(--purple-deep); }
 
     /* ============ ДИАГНОСТИКА (тёмная вставка-карточка) ============ */
     .diagnostics-card {
@@ -1563,50 +1561,33 @@
         <p class="eyebrow">О студии</p>
         <h2 class="section-title">Подойдёт вам, если…</h2>
         <p class="section-lead">«Звучно» — студия вокала в Санкт-Петербурге для взрослых и детей. Занимаемся онлайн или в уютной студии в 5 минутах от метро «Сенная площадь»</p>
-        <!-- Пункты идут двумя встречными бегущими строками. Каждая фраза
-             показана вместе с описанием — ничего не прячется. Ход медленный,
-             при наведении лента замирает, можно и пролистать вручную. -->
-        <div class="phrases">
-          <div class="marquee-row phrase-row">
-            <div class="marquee-track phrase-track marquee-left" data-speed="15">
-              <div class="phrase">
-                <h3>Давно мечтаете научиться петь</h3>
-                <p>Откладывали «на потом» годами — а желание петь никуда не делось. Самое время начать.</p>
-              </div>
-              <span class="phrase-sep" aria-hidden="true">✦</span>
-              <div class="phrase">
-                <h3>Стесняетесь своего голоса</h3>
-                <p>Неловко петь даже наедине с собой. Здесь безопасная атмосфера без оценок и сравнений.</p>
-              </div>
-              <span class="phrase-sep" aria-hidden="true">✦</span>
-              <div class="phrase">
-                <h3>Не попадаете в ноты</h3>
-                <p>Кажется, что «медведь на ухо наступил». Чистая интонация — навык, и он тренируется.</p>
-              </div>
-              <span class="phrase-sep" aria-hidden="true">✦</span>
-            </div>
-          </div>
-          <div class="marquee-row phrase-row">
-            <div class="marquee-track phrase-track marquee-right" data-speed="13">
-              <div class="phrase">
-                <h3>Хотите звучать увереннее и выступать</h3>
-                <p>Мечтаете о сцене, караоке без страха или уверенном голосе на публике.</p>
-              </div>
-              <span class="phrase-sep" aria-hidden="true">✦</span>
-              <div class="phrase">
-                <h3>Уже поёте и хотите петь техничнее</h3>
-                <p>Есть опыт, но чувствуете потолок: дыхание, диапазон, свобода звука — есть куда расти.</p>
-              </div>
-              <span class="phrase-sep" aria-hidden="true">✦</span>
-              <div class="phrase">
-                <h3>Поёте профессионально и ищете взгляд со стороны</h3>
-                <p>Вам нужен внимательный слух педагога, чтобы отшлифовать то, что уже работает.</p>
-              </div>
-              <span class="phrase-sep" aria-hidden="true">✦</span>
-            </div>
-          </div>
-        </div>
-      </div>
+        <!-- Пункты — обычный список в две колонки: виден целиком, без движения. -->
+        <ul class="fit-list reveal">
+          <li>
+            <h3>Давно мечтаете научиться петь</h3>
+            <p>Откладывали «на потом» годами — а желание петь никуда не делось. Самое время начать.</p>
+          </li>
+          <li>
+            <h3>Стесняетесь своего голоса</h3>
+            <p>Неловко петь даже наедине с собой. Здесь безопасная атмосфера без оценок и сравнений.</p>
+          </li>
+          <li>
+            <h3>Не попадаете в ноты</h3>
+            <p>Кажется, что «медведь на ухо наступил». Чистая интонация — навык, и он тренируется.</p>
+          </li>
+          <li>
+            <h3>Хотите звучать увереннее и выступать</h3>
+            <p>Мечтаете о сцене, караоке без страха или уверенном голосе на публике.</p>
+          </li>
+          <li>
+            <h3>Уже поёте и хотите петь техничнее</h3>
+            <p>Есть опыт, но чувствуете потолок: дыхание, диапазон, свобода звука — есть куда расти.</p>
+          </li>
+          <li>
+            <h3>Поёте профессионально и ищете взгляд со стороны</h3>
+            <p>Вам нужен внимательный слух педагога, чтобы отшлифовать то, что уже работает.</p>
+          </li>
+        </ul>     </div>
     </section>
 
     <!-- ================= ВАШ РЕЗУЛЬТАТ ================= -->
