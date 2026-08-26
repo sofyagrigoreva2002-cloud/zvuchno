@@ -2462,10 +2462,10 @@
           reviewsMoreBtn.textContent = reviewsExpanded ? "Свернуть" : "Посмотреть ещё";
           reviewsMoreBtn.setAttribute("aria-expanded", reviewsExpanded ? "true" : "false");
 
-          /* при сворачивании список укорачивается на шесть карточек,
-             и человек оказывается уже в следующей секции — возвращаем к отзывам */
+          /* при сворачивании список укорачивается на шесть карточек и страница
+             будто прыгает — уводим человека к следующему разделу */
           if (!reviewsExpanded) {
-            document.getElementById("reviews").scrollIntoView({ block: "start" });
+            document.getElementById("faq").scrollIntoView({ block: "start" });
           }
         });
       }
