@@ -8,14 +8,19 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 
-  <!-- Превью ссылки в Telegram, WhatsApp и соцсетях.
-       TODO: после покупки домена заменить путь в og:image на полный адрес,
-       например https://zvuchno.ru/assets/og.jpg -->
+  <!-- Основной адрес страницы. Нужен, чтобы копия сайта на github.io
+       не конкурировала в поиске с боевым: поисковик увидит здесь,
+       какой адрес считать настоящим. -->
+  <link rel="canonical" href="https://zvuchno-spb.ru/">
+
+  <!-- Превью ссылки в Telegram, WhatsApp и соцсетях. Адрес картинки
+       обязательно полный: по относительному пути превью не соберётся. -->
+  <meta property="og:url" content="https://zvuchno-spb.ru/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Студия вокала «Звучно»">
   <meta property="og:title" content="Студия вокала «Звучно» — уроки вокала в Санкт-Петербурге и онлайн">
   <meta property="og:description" content="Занятия вокалом с реальными результатами. Эстрадный, академический и актёрский вокал с педагогом Полиной Мирзоевой — онлайн или в студии на ул. Садовой, 28–30. Бесплатная вокальная консультация — 30 минут.">
-  <meta property="og:image" content="assets/og.jpg">
+  <meta property="og:image" content="https://zvuchno-spb.ru/assets/og.jpg">
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preload" href="assets/fonts/manrope-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
